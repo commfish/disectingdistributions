@@ -54,10 +54,10 @@ ggplot(data = weir_data, aes(x = date_num, y = esc)) +
 # Guess at mean "number date" and sigmas ----
 #Using the above graph guess at Means (numeric date) in Ascending Order, 
 #and the associated Sigmas and distribution.  
-guemea <- c(13320, 13350)#c(17340, 17375, 17410)  
-guesig <- c(10, 10)  
+guemea <- c(13320, 13350, 13370)#c(17340, 17375, 17410)  
+guesig <- c(10, 10, 10)  
 guedis <- "norm"  
-(fitpro <- mix(?as.mixdata(df), mixparam(mu=guemea, sigma=guesig), dist=guedis))  
+(fitpro <- mix(as.mixdata(df), mixparam(mu=guemea, sigma=guesig), dist=guedis))  
 
 #Plot the results  
 plot(fitpro, main="Fit a Probability Distribution")  
