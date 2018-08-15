@@ -29,66 +29,40 @@ weir_data$date <- as.Date(weir_data$date ,"%m/%d/%y")
 
 glimpse(weir_data)
 
-qplot(weir_data$esc, geom = "histogram")
-
-weir_data <- weir_data %>% filter(year(weir_data$date)==2017)
+weir_data <- weir_data %>% filter(year(weir_data$date)==2006)
 unique(year(weir_data$date))
-#weir_data$date  <- as.POSIXct(weir_data$date )
 
-#Compute a histogram ----
+
+#Graph data ----
 
 # convert the Date to its numeric equivalent
 # Note that Dates are stored as number of days internally,
-# hence it is easy to convert back and forth mentally
+# One can convert back and forth since dates don't lend well to numeric algorithms. 
 weir_data$date_num <- as.numeric(weir_data$date)
-min(weir_data$date_num, na.rm = TRUE)
 
-bin <- 60 # used for aggregating the data and aligning the labels
+# Create a data frame whose first column are the dates in numeric format
+# and whose second column are the frequencies. 
+# This is required for fitting the mixture. See mixdata {mixdist}
+df <- data.frame(mid=weir_data$date_num, cou=weir_data$esc)  
+head(df)
 
-p <- ggplot(weir_data, aes(x = date_num, y = esc))+ 
-  geom_histogram(binwidth = bin, colour="white")
-
-
+# Graph a plot of daily weir passage
 ggplot(data = weir_data, aes(x = date_num, y = esc)) + 
- geom_line() 
-#  labs(title = "Title", x = "x lable", y = "Number of fish")
+ geom_line() +
+ labs(title = "Daily weir passage", x = "date in number format", y = "Number of fish")
 
-# The numeric data is treated as a date,
-# breaks are set to an interval equal to the binwidth,
-# and a set of labels is generated and adjusted in order to align with bars
-p <- p + scale_x_date(breaks = seq(min(weir_data$date_num)-20, # change -20 term to taste
-                                   max(weir_data$date_num), 
-                                   bin),
-                      labels = date_format("%Y-%b"),
-                      limits = c(as.Date("2017-01-01"), 
-                                 as.Date("2017-12-01")))
-
-
-
-
-
-#The above graph shows 3 peaks that might be represented by 3 Normal  
-#Distributions.  Guess at the 3 Means in Ascending Order, with a guess for  
-#the associated 3 Sigmas and fit the distribution.  
-guemea <- c(17340, 17375, 17410)  
-guesig <- c(4, 3, 2)  
+# Guess at mean "number date" and sigmas ----
+#Using the above graph guess at Means (numeric date) in Ascending Order, 
+#and the associated Sigmas and distribution.  
+guemea <- c(13320, 13350)#c(17340, 17375, 17410)  
+guesig <- c(10, 10)  
 guedis <- "norm"  
-(fitpro <- mix(as.mixdata(df), mixparam(mu=guemea, sigma=guesig), dist=guedis))  
+(fitpro <- mix(?as.mixdata(df), mixparam(mu=guemea, sigma=guesig), dist=guedis))  
 
 #Plot the results  
 plot(fitpro, main="Fit a Probability Distribution")  
 grid()  
 legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
 
-
-
-
-p <- ggplot(data = weir_data, aes(x = date, y = esc)) + 
-  geom_histogram() +
-  theme_bw() + xlab(NULL) +
-  scale_x_datetime(breaks = ?date_breaks("1 month"),
-                   labels = date_format("%m-%d"),
-                   limits = c(as.POSIXct("2012-01-01"), 
-                              as.POSIXct("2013-01-01")) )
-
-p
+#Estimated mean date and sigmas.
+summary(fitpro)
