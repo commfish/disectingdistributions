@@ -46,3 +46,12 @@ graph_year(weir_2008)
 distribution_estimation(weir_2008)
 distribution_estimation(weir_2008, 3, mean_guess_given = c(14050, 14080, 14110 ))
 
+auto_year(weir_data, 2008)
+
+auto_year(weir_data, 2010)
+auto_year(weir_data, 2011)
+auto_year(weir_data, 2012)
+auto_year(weir_data, 2013)
+auto_year(weir_data, 2014)
+auto_year(weir_data, 2015)
+auto_year(weir_data, 2016)

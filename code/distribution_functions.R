@@ -49,3 +49,10 @@ distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_giv
   summary(fitpro)
 }
 
+auto_year <- function (df, year_wanted) {
+  df %>% filter(year(date) == year_wanted ) -> df_year
+  graph_year(df_year)
+  distribution_estimation(df_year)
+}
+
+
