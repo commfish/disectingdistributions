@@ -29,14 +29,20 @@ read_csv('data/ChigISGrunappt2006-2017.csv') %>%
 
 
 # Filter out just on years data.
-weir_data %>% 
-  filter(year(date)==2006) -> weir_2006
 
+#2006
+weir_data %>% filter(year(date)==2006) -> weir_2006
 graph_year(weir_2006)
 distribution_estimation(weir_2006)
 
+#2007
+weir_data %>% filter(year(date)==2007) -> weir_2007
+graph_year(weir_2007)
+distribution_estimation(weir_2007)
 
-
-
-
+#2008
+weir_data %>% filter(year(date)==2008) -> weir_2008
+graph_year(weir_2008)
+distribution_estimation(weir_2008)
+distribution_estimation(weir_2008, 3, mean_guess_given = c(14050, 14080, 14110 ))
 
