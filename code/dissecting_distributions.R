@@ -37,6 +37,9 @@ graph_year(weir_2006)
 #(fitpro <- mix(as.mixdata(weir_2006), mixparam(mu=c(13325, 13350, 13380), sigma=c(10,15,10)), dist="norm")) 
 dist_plot(fitpro)
 summary(fit)
+fit <-fitpro <- distribution_estimation_weibull(weir_2006, 2, mean_guess_given = c(13325, 13350, 13380), c(10,10,10),  distibution_guess = 'weibull')
+distribution_estimation_weibull <- function(df, num_of_distributions = 2, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull')
+  fit <-fitpro <- distribution_estimation_weibull(weir_2006)
 
 pnormfit(fit, 13338, 2)
 pnormfit(fit, 13338, 1)
@@ -121,8 +124,10 @@ graph_year(weir_2008)
 distribution_estimation(weir_2008) #THis didn't work very well
 distribution_estimation(weir_2008, 3, mean_guess_given = c(14050, 14080, 14110 )) # This worked better
 
+auto_year(weir_data, 2006)
+auto_year(weir_data, 2007)
 auto_year(weir_data, 2008)
-
+auto_year(weir_data, 2009)
 auto_year(weir_data, 2010)
 auto_year(weir_data, 2011)
 auto_year(weir_data, 2012)

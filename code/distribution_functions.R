@@ -44,7 +44,7 @@ distribution_estimation_norms <- distribution_estimation <- function(df, num_of_
   
 }
 
-distribution_estimation_weibul <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
+distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
   
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
@@ -76,7 +76,7 @@ dist_plot <- function (fitpro){
 auto_year <- function (df, year_wanted) {
   df_year <- data_prep(df, year_wanted ) 
   graph_year(df_year)
-  fitpro <- distribution_estimation(df_year) 
+  fitpro <- distribution_estimation_weibull(df_year) 
   dist_plot(fitpro)
 }
 
