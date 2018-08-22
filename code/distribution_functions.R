@@ -27,7 +27,7 @@ graph_year <- function(df){
     labs(title = "Daily weir passage", x = "date in number format", y = "Number of fish")
 }
 
-distribution_estimation_norms <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
@@ -80,8 +80,9 @@ auto_year <- function (df, year_wanted) {
   dist_plot(fitpro)
 }
 
-dnormfit <- function(fit, x, dist_num){
-  fit$parameters$pi[dist_num]*dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
+dnormfit <- function(fit, x, dist_num = 1){
+  #fit$parameters$pi[dist_num]*dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
+  dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
 }
 
 percent_dist <- function(fit, x, dist_num = 1){
@@ -130,6 +131,6 @@ tails_equal_date <- function(fit, dist_a =1, dist_b =2){
       }
     }
   
-  return(as.Date.numeric(current_x)) # date 
+  return(current_x) #(as.Date.numeric(current_x)) # date 
 }
 
