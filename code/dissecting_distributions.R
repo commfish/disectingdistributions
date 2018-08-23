@@ -62,16 +62,20 @@ dist_plot(fit)
 weir_2010 <- data_prep(weir_data, 2010)
 graph_year(weir_2010)
 fit <- distribution_estimation_norms(weir_2010)
+(fit <- mix(as.mixdata(weir_2010), mixparam(mu=c(14785, 14800, 14850), sigma= c(10,5,5)), dist= 'gamma', iterlim=10000)) #THis didn't work
 (fit <- mix(as.mixdata(weir_2010), mixparam(mu=c(14785, 14800), sigma= c(10,10)), dist= 'gamma', iterlim=5000)) 
 (fit <- mix(as.mixdata(weir_2010), mixparam(mu=c(14785, 14800), sigma= c(10,10)), dist= 'weibull', iterlim=5000)) ##THis didn't work
 (fit <- mix(as.mixdata(weir_2010), mixparam(mu=c(14785, 14800, 14835), sigma= c(10,10,10)), dist= 'weibull', iterlim=5000)) #THis didn't work
 
-auto_year(weir_data, 2006)
-auto_year(weir_data, 2007)
-auto_year(weir_data, 2008)
-auto_year(weir_data, 2009)
-auto_year(weir_data, 2010)
-auto_year(weir_data, 2011)
+
+weir_2011 <- data_prep(weir_data, 2011)
+graph_year(weir_2011)
+fit <- distribution_estimation_norms(weir_2010)
+(fit <- mix(as.mixdata(weir_2011), mixparam(mu=c(14785, 14800, 14850), sigma= c(10,5,5)), dist= 'gamma', iterlim=10000)) #THis didn't work
+(fit <- mix(as.mixdata(weir_2011), mixparam(mu=c(14785, 14800), sigma= c(10,10)), dist= 'gamma', iterlim=5000)) 
+(fit <- mix(as.mixdata(weir_2011), mixparam(mu=c(14785, 14800), sigma= c(10,10)), dist= 'weibull', iterlim=5000)) ##THis didn't work
+(fit <- mix(as.mixdata(weir_2011), mixparam(mu=c(14785, 14800, 14835), sigma= c(10,10,10)), dist= 'weibull', iterlim=5000)) #THis didn't work
+
 auto_year(weir_data, 2012)
 auto_year(weir_data, 2013)
 auto_year(weir_data, 2014)
