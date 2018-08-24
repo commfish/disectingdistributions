@@ -62,9 +62,9 @@ distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_g
 }
 
 
-dist_plot <- function (fitpro){
+dist_plot <- function (fitpro, year_wanted){
   #Plot the results  
-  plot(fitpro, main="Fit Distributions for a year" )  
+  plot(fitpro, main=year_wanted ) 
   grid()  
   legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
   
@@ -73,12 +73,17 @@ dist_plot <- function (fitpro){
 }
   
 
-auto_year <- function (df, year_wanted) {
+auto_year<- function (df, year_wanted) {
   df_year <- data_prep(df, year_wanted ) 
   graph_year(df_year)
   fitpro <- distribution_estimation_weibull(df_year) 
-  dist_plot(fitpro)
+  dist_plot(fitpro, year_wanted )
+  fitpro <- distribution_estimation_norms(df_year) 
+  dist_plot(fitpro, year_wanted ) 
 }
+
+
+
 
 dnormfit <- function(fit, x, dist_num = 1){
   #fit$parameters$pi[dist_num]*dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
