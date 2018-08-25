@@ -31,7 +31,9 @@ read_csv('data/ChigISGrunappt2006-2017.csv') %>%
 
 #2006
 weir_2006 <- data_prep(weir_data, 2006)
+write.csv(weir_2006, file = "data/weir_2006.csv")
 graph_year(weir_2006)
+weir_2006<- as.mixdata(weir_2006)
 (fit <- mix(as.mixdata(weir_2006), mixparam(mu=c(13335, 13355), sigma= c(10,10)), dist= 'gamma', iterlim=5000))  #didn't work well
 (fit <- mix(as.mixdata(weir_2006), mixparam(mu=c(13335, 13355, 13380), sigma= c(10,10,20)), dist= 'gamma', iterlim=5000))  
 (fit <- mix(as.mixdata(weir_2006), mixparam(mu=c(13335, 13355), sigma= c(15,15)), dist= 'weibull', iterlim=5000))  #didn't work
@@ -39,6 +41,7 @@ graph_year(weir_2006)
 
 dist_plot(fit, 2006)
 percent_dist(fit, 13336) #date when fifty percent is early run. According to distributions? 
+weir_2006$dist_percent <- percent_dist(fit, weir_2006$date_num)
 
 percent_dist(fit, 13697) #date when fifty percent is early run. According to distributions? 
 pnormfit(fit, 13336)
