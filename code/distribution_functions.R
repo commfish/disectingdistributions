@@ -44,6 +44,41 @@ distribution_estimation_norms <- distribution_estimation <- function(df, num_of_
   
 }
 
+distribution_estimation_norms_MES <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+  
+  if(missing(mean_guess_given)) {
+    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+  } else {
+    mean_guess = mean_guess_given
+  }
+  if(missing(sigma_guess_given)) {
+    sigma_guess = rep(10, each = num_of_distributions)
+  } else {
+    sigma_guess = sigma_guess_given
+  }
+  
+  (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(conmu="MES"), dist=distibution_guess, iterlim=5000))  
+  
+}
+
+distribution_estimation_norms_SEQ <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+  
+  if(missing(mean_guess_given)) {
+    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+  } else {
+    mean_guess = mean_guess_given
+  }
+  if(missing(sigma_guess_given)) {
+    sigma_guess = rep(10, each = num_of_distributions)
+  } else {
+    sigma_guess = sigma_guess_given
+  }
+  
+  (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SEQ"), dist=distibution_guess, iterlim=5000))  
+  
+}
+
+
 distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
   
   if(missing(mean_guess_given)) {
@@ -74,11 +109,13 @@ dist_plot <- function (fitpro, year_wanted){
   
 
 auto_year<- function (df, year_wanted) {
-  df_year <- data_prep(df, year_wanted ) 
+  df_year <- data_prep(df, year_wanted) 
   graph_year(df_year)
-  fitpro <- distribution_estimation_weibull(df_year) 
-  dist_plot(fitpro, year_wanted )
   fitpro <- distribution_estimation_norms(df_year) 
+  dist_plot(fitpro, year_wanted )
+  fitpro <- distribution_estimation_norms_MES(df_year) 
+  dist_plot(fitpro, year_wanted ) 
+  fitpro <- distribution_estimation_norms_SEQ(df_year) 
   dist_plot(fitpro, year_wanted ) 
 }
 
