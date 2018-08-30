@@ -19,13 +19,35 @@ data_prep <- function(df, year_wanted){
   # This is required for fitting the mixture. See mixdata {mixdist}
     dplyr::select(date_num, run) -> df
 }
+data_prep_early <- function(df, year_wanted){
+  df %>% 
+    filter(year(date)==year_wanted) %>%
+    # Create a data frame whose first column are the dates in numeric format
+    # and whose second column are the frequencies. 
+    # This is required for fitting the mixture. See mixdata {mixdist}
+    dplyr::select(date_num, run_early) -> df
+}
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
-  ggplot(df, aes(date_num, run)) + 
+  ggplot(df, aes(date_num, run_early)) + 
     geom_line() +
-    labs(title = "Daily weir passage", x = "date in number format", y = "Number of fish")
+    labs(title = "Early Run Daily weir passage", x = "date in number format", y = "Number of fish")
 }
+
+graph_year_early <- function(df){
+  #Graph daily weir run = escapement + catch for a year ----
+  ggplot(df, aes(date_num, run_early)) + 
+    geom_line() +
+    labs(title = "Early Run Daily weir passage", x = "date in number format", y = "Number of fish")
+}
+
+early_look <- function(df, year_wanted){
+  df <- data_prep_early(df, year_wanted)
+  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$date_num), sigma=sd(df$date_num)), dist="gamma", iterlim=5000)
+  dist_plot(fit, year_wanted)
+}
+
 
 distribution_estimation_norms <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
