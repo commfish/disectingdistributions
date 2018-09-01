@@ -17,7 +17,7 @@ data_prep <- function(df, year_wanted){
   # Create a data frame whose first column are the dates in numeric format
   # and whose second column are the frequencies. 
   # This is required for fitting the mixture. See mixdata {mixdist}
-    dplyr::select(date_num, run) -> df
+    dplyr::select(day_of_year, run) -> df
 }
 data_prep_early <- function(df, year_wanted){
   df %>% 
@@ -25,26 +25,61 @@ data_prep_early <- function(df, year_wanted){
     # Create a data frame whose first column are the dates in numeric format
     # and whose second column are the frequencies. 
     # This is required for fitting the mixture. See mixdata {mixdist}
-    dplyr::select(date_num, run_early) -> df
+    dplyr::select(day_of_year, run_early_gen) -> df
 }
+
+year_stats <- function (df, year_wanted){
+  df %>%
+    filter(year(date)==year_wanted)-> df
+  run_size <-sum(df$run)
+  print("Run")
+  print(run_size)
+  df_fit <- data_prep(df, year_wanted)
+  fit <- distribution_estimation_norms_SEQ(df_fit) 
+  dist_plot (fit, year_wanted)
+  df_fit_early <- data_prep_early(df, year_wanted)
+  fit_early <- distribution_estimation_norms(df_fit_early)fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
+  print("Dist mean & sd")
+  print(c(fit$parameters$mu[1], fit$parameters$sigma[1]))
+  print("Gen mean & sd")
+  print(c(fit_early$parameters$mu[1], fit_early$parameters$sigma[1]))
+  df %>%
+    mutate(dist_percent = percent_dist(fit, df$day_of_year),
+           run_early_dis = dist_percent*run,
+           cum_run_dis = cumsum(run_early_dis),
+           cum_run_gen = cumsum(run_early_gen)) ->df
+  
+  ggplot(df, aes(day_of_year))+
+    geom_line(aes(y=dist_percent), colour = "green")+
+    geom_line(aes(y=prop_early_genetics), colour = "blue")+
+    ggtitle("Genetics vs Distributional Runtiming Assignment")
+
+  ggplot(df, aes(day_of_year))+
+    geom_line(aes(y=cum_run_dis), colour = "green")+
+    geom_line(aes(y=cum_run_gen), colour = "blue")+
+    labs(y = "cumulative run", x= "day of the year")+
+    ggtitle("Genetics vs Distributional Early Run")
+}
+
+year_stats(weir_data, 2006)
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
-  ggplot(df, aes(date_num, run_early)) + 
+  ggplot(df, aes(day_of_year, run_early)) + 
     geom_line() +
     labs(title = "Early Run Daily weir passage", x = "date in number format", y = "Number of fish")
 }
 
 graph_year_early <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
-  ggplot(df, aes(date_num, run_early)) + 
+  ggplot(df, aes(day_of_year, run_early)) + 
     geom_line() +
     labs(title = "Early Run Daily weir passage", x = "date in number format", y = "Number of fish")
 }
 
 early_look <- function(df, year_wanted){
   df <- data_prep_early(df, year_wanted)
-  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$date_num), sigma=sd(df$date_num)), dist="gamma", iterlim=5000)
+  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
   dist_plot(fit, year_wanted)
 }
 
@@ -52,12 +87,12 @@ early_look <- function(df, year_wanted){
 distribution_estimation_norms <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
-    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   } else {
     mean_guess = mean_guess_given
   }
   if(missing(sigma_guess_given)) {
-    sigma_guess = rep(10, each = num_of_distributions)
+    sigma_guess = rep(9, each = num_of_distributions)
   } else {
     sigma_guess = sigma_guess_given
   }
@@ -69,12 +104,12 @@ distribution_estimation_norms <- distribution_estimation <- function(df, num_of_
 distribution_estimation_norms_MES <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
-    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   } else {
     mean_guess = mean_guess_given
   }
   if(missing(sigma_guess_given)) {
-    sigma_guess = rep(10, each = num_of_distributions)
+    sigma_guess = rep(9, each = num_of_distributions)
   } else {
     sigma_guess = sigma_guess_given
   }
@@ -86,12 +121,12 @@ distribution_estimation_norms_MES <- distribution_estimation <- function(df, num
 distribution_estimation_norms_SEQ <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
-    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   } else {
     mean_guess = mean_guess_given
   }
   if(missing(sigma_guess_given)) {
-    sigma_guess = rep(10, each = num_of_distributions)
+    sigma_guess = rep(9, each = num_of_distributions)
   } else {
     sigma_guess = sigma_guess_given
   }
@@ -100,16 +135,31 @@ distribution_estimation_norms_SEQ <- distribution_estimation <- function(df, num
   
 }
 
+distribution_estimation_norms_SFX <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+  
+  mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
+  sigma_guess = c(8.6, 8.6, 8.6)
+  
+  (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SFX", fixsigma= c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000))  
+}
+
+distribution_estimation_norms_MFX <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+  
+  mean_guess = c(174, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
+  sigma_guess = c(8.6, 8.6, 8.6)
+  
+  (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(conmu="MFX", fixmu= c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000))  
+}
 
 distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
   
   if(missing(mean_guess_given)) {
-    mean_guess = c(mean(df$date_num) -30, mean(df$date_num), mean(df$date_num)+30) #currently the default is for three distributions.
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   } else {
     mean_guess = mean_guess_given
   }
   if(missing(sigma_guess_given)) {
-    sigma_guess = rep(10, each = num_of_distributions)
+    sigma_guess = rep(9, each = num_of_distributions)
   } else {
     sigma_guess = sigma_guess_given
   }
@@ -135,13 +185,11 @@ auto_year<- function (df, year_wanted) {
   graph_year(df_year)
   fitpro <- distribution_estimation_norms(df_year) 
   dist_plot(fitpro, year_wanted )
-  fitpro <- distribution_estimation_norms_MES(df_year) 
-  dist_plot(fitpro, year_wanted ) 
   fitpro <- distribution_estimation_norms_SEQ(df_year) 
   dist_plot(fitpro, year_wanted ) 
+  fitpro <- distribution_estimation_norms_MFX(df_year) 
+  dist_plot(fitpro, year_wanted ) 
 }
-
-
 
 
 dnormfit <- function(fit, x, dist_num = 1){
@@ -157,10 +205,12 @@ pnormfit <- function(fit, x, dist_num =1){
   fit$parameters$pi[dist_num]*pnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
 }
 
+#This function still needs work. 
 tails_difference <- function(fit, x, dist_a =1, dist_b =2){
   difference <- abs(pnormfit(fit, x, 1) + 1 - pnormfit(fit, x, 2))
 }
 
+#This function still needs work. 
 tails_equal_date <- function(fit, dist_a =1, dist_b =2){
   # find X (date) when pnorm(dist 1) = 1 - pnorm(dist 2) taking into account the proporiton (pi)
   # each distribution is of the whole multinomial distribution
