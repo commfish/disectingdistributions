@@ -38,7 +38,8 @@ year_stats <- function (df, year_wanted){
   fit <- distribution_estimation_norms_SEQ(df_fit) 
   dist_plot (fit, year_wanted)
   df_fit_early <- data_prep_early(df, year_wanted)
-  fit_early <- distribution_estimation_norms(df_fit_early)fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
+  fit_early <- distribution_estimation_norms(df_fit_early)
+  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
   print("Dist mean & sd")
   print(c(fit$parameters$mu[1], fit$parameters$sigma[1]))
   print("Gen mean & sd")
@@ -101,7 +102,7 @@ distribution_estimation_norms <- distribution_estimation <- function(df, num_of_
   
 }
 
-distribution_estimation_norms_MES <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms_MES <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -118,7 +119,7 @@ distribution_estimation_norms_MES <- distribution_estimation <- function(df, num
   
 }
 
-distribution_estimation_norms_SEQ <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms_SEQ <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -135,7 +136,7 @@ distribution_estimation_norms_SEQ <- distribution_estimation <- function(df, num
   
 }
 
-distribution_estimation_norms_SFX <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms_SFX <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   sigma_guess = c(8.6, 8.6, 8.6)
@@ -143,7 +144,7 @@ distribution_estimation_norms_SFX <- distribution_estimation <- function(df, num
   (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SFX", fixsigma= c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000))  
 }
 
-distribution_estimation_norms_MFX <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms_MFX <-  function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   mean_guess = c(174, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   sigma_guess = c(8.6, 8.6, 8.6)
