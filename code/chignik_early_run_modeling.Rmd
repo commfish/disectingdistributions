@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
-```{r}
+```{r data entry}
 # load ----
 library(tidyverse)
 library(ggplot2)
@@ -78,7 +78,7 @@ With this model for 8 of the 11 years early run counts using runtiming alone wer
 The three best years included 2010, 2013, and 2014, where early run counts using runtiming information alone differed by no more than 3% of the counts using additional genetic information. 
 
 
-```{r }
+```{r three_best}
 auto_year(weir_data, 2010)
 year_stats(weir_data, 2010)
 auto_year(weir_data, 2013)
@@ -91,7 +91,7 @@ year_stats(weir_data, 2014)
 The three years that runtiming distributions were off by more than 10% included 2008, which overestimated the early run by 27%, 2015 where it underestimated the early run by 25% and 2012 where is over estimated the run by a whopping 67%. 
 
 
-```{r }
+```{r three_worst}
 auto_year(weir_data, 2008)
 year_stats(weir_data, 2008)
 auto_year(weir_data, 2012)
@@ -105,7 +105,7 @@ It was suggested that using catch information from farther flung districts might
 
 This change improved the model. The most significant change being that of the year 2012 which changed from an over estimate of 67% to an over estimate of 5%, which is much more reasonable. The 2008 and 2015 estimates were similar with a 25% over estimate and 26% underestimate respectively.
 
-```{r }
+```{r even_better}
 auto_year(chig_data, 2012)
 year_stats(chig_data, 2012)
 ```
@@ -116,7 +116,7 @@ It is important to note that the definition of the run, at least in terms of thi
 
 Below are the graphs for all the years using model with the more conservative data set:
 
-```{r }
+```{r all_year_graphs}
 year_vector <- c(2006:2008,2010:2017)
 
 for(i in year_vector){

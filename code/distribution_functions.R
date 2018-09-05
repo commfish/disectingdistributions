@@ -7,7 +7,7 @@
 library(tidyverse)
 library(mixdist)
 library(lubridate)
-library(gridExtra) #for multiple plots on a page
+#library(gridExtra) #for multiple plots on a page
 #library(here)
 #source('code/functions.R')
 
@@ -64,7 +64,7 @@ year_stats <- function (df, year_wanted){
     geom_line(aes(y=cum_run_dis), colour = "green")+
     geom_line(aes(y=cum_run_gen), colour = "blue")+
     labs(y = "cumulative run", x= "day of the year")+
-    ggtitle(paste0("Gen vs Dist Early Run ", year_wanted))
+    ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
 }
 
 #year_stats(weir_data, 2017)
@@ -220,7 +220,6 @@ dist_plot <- function (fitpro, year_wanted){
   #Estimated mean date and sigmas.
   #summary(fitpro) 
 }
-  
 
 auto_year<- function (df, year_wanted) {
   df_year <- data_prep(df, year_wanted) 
