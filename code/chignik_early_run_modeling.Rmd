@@ -79,26 +79,26 @@ The three best years included 2010, 2013, and 2014, where early run counts using
 
 
 ```{r }
-a10 <- auto_year(weir_data, 2010)
-a13 <- auto_year(weir_data, 2013)
-a14 <- auto_year(weir_data, 2014)
-b10 <- year_stats(weir_data, 2010)
-b13 <- year_stats(weir_data, 2013)
-b14 <- year_stats(weir_data, 2014)
-multiplot(a10, a13, a14, b10, b13, b14, cols=2)
+auto_year(weir_data, 2010)
+year_stats(weir_data, 2010)
+auto_year(weir_data, 2013)
+year_stats(weir_data, 2013)
+auto_year(weir_data, 2014)
+year_stats(weir_data, 2014)
+
 ```
 
 The three years that runtiming distributions were off by more than 10% included 2008, which overestimated the early run by 27%, 2015 where it underestimated the early run by 25% and 2012 where is over estimated the run by a whopping 67%. 
 
 
 ```{r }
-a08 <- auto_year(weir_data, 2008)
-a12 <- auto_year(weir_data, 2012)
-a15 <- auto_year(weir_data, 2015)
-b08 <- year_stats(weir_data, 2008)
-b12 <- year_stats(weir_data, 2012)
-b15 <- year_stats(weir_data, 2015)
-multiplot(a10, a13, a14, b10, b13, b14, cols=2)
+auto_year(weir_data, 2008)
+year_stats(weir_data, 2008)
+auto_year(weir_data, 2012)
+year_stats(weir_data, 2012)
+auto_year(weir_data, 2015)
+year_stats(weir_data, 2015)
+
 ```
 
 It was suggested that using catch information from farther flung districts might add noise to the distributions since those districts surely would contain harvest from non-Chignik stocks and have more variable arrival dates. The analysis was reexamined this time using only harvests that were a day or twos fish-swim away. 
@@ -113,5 +113,16 @@ year_stats(chig_data, 2012)
 Future analysis could include examining if there are any factors that explain why 2008 and 2015 preformed poorly with the model. Initial investigations note that the mean day-of-year for early runtiming is shifted to the right 3 days for 2008 and 2 days for 2015, indicating that the estimated distribution is pulled to the right of what it would be using additional genetic information. Biologists note that harvest and runsize may have been different. Also examining time and area harvest to include in runtime estimates may improve the model. 
 
 It is important to note that the definition of the run, at least in terms of this model, changed from what is currently used. Harvest farther from the Chignik area were excluded. If this model, or one like it were used in the future it should be determined if the run estimates for this model are only to distinguish the percentage of early vs late run stocks (recommended for near term), or if the methods behind estimates of harvest should be reexamined, (recommended for the future).
+
+Below are the graphs for all the years using model with the more conservative data set:
+
+```{r }
+year_vector <- c(2006:2008,2010:2017)
+
+for(i in year_vector){
+  auto_year(chig_data, i)
+  year_stats(chig_data, i)
+}
+```
 
 
