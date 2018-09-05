@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 ```{r}
 # load ----
@@ -68,31 +68,39 @@ Our method of modeling is to use maximum likelihood methods including the EM alg
 
 Creelman(2011) considered that the early run and later runs are made up of various smaller runs with their own runtiming and run locations. She grouped collections she had into four genetic groups: Black Lake, Chignik Lake, Chignik Lake October, and Chingnik River. She found that run timing played an important role in genetic variation. 
 
-The data from the weir Is collected from about late may until the end of September. Looking at the distributions there appears to be three modes. The assumption we will take is that there are three modes presented in the data, that maybe there would be a fourth if data were collected into October. 
+The data from the weir is collected from about late may until the end of September. Looking at the distributions there appears to be three modes. The assumption we will take is that there are three modes presented in the data, that maybe there would be a fourth if data were collected into October. 
 Normal and Weibull distributions were fit, also certain constraints were considered inorder to find the best fit. Those constraints included equal standard errors; means equally spaced, and having the mean or standard error of the early distribution fixed to median value of the corresponding parameter of distributions that used genetic information to determine runtiming. 
 
 It was determined that the best fitting model was a trimodal normally distributed model with the constraint of equal standard deviations for each of the distributions. 
 
 With this model for 8 of the 11 years early run counts using runtiming alone were with 10% of the counts using additional genetic information. 
-The three best years included 2010, 2013, and 2014, were early run counts using runtiming alone differed by no more than 3% of the counts using addtional genetic information. 
+The three best years included 2010, 2013, and 2014, were early run counts using runtiming alone differed by no more than 3% of the counts using additional genetic information. 
 
 (show graphs)
 ```{r }
-
+year_stats(weir_data, 2010)
+year_stats(weir_data, 2013)
+year_stats(weir_data, 2014)
 ```
 
 The three years that runtiming distributions were off by more than that included 2008, which overestimated the early run by 27%, 2015 where it underestimated the early run by 25% and 2012 where is over estimated the run by a whopping 67%. 
 
 (show graphs)
 ```{r }
-
+year_stats(weir_data, 2008)
+year_stats(weir_data, 2012)
+year_stats(weir_data, 2015)
 ```
 
 It was suggested that using catch information from farther flung districts might add noise to the distributions since those districts surely would contain harvest from non-Chignik stocks and have more variable arrival dates. The analysis was reexamined this time using only harvests that were a day or twos fish-swim away. 
 
 This changed improved the model. The most significant change being that of the year 2012 which changed from an over estimate of 67% to an over estimate of 5%, which is much more reasonable. The 2008 and 2015 estimates were similar with a 25% over estimate and 26% underestimate respectively.
-
-Further future analysis could include examining if there are any factors that explain why 2008 and 2015 preformed poorly with the model. Also examining time and area harvest to include in runtime estimates may improve the model. 
+```{r }
+year_stats(weir_data, 2008)
+year_stats(weir_data, 2012)
+year_stats(weir_data, 2015)
+```
+Further future analysis could include examining if there are any factors that explain why 2008 and 2015 preformed poorly with the model. Initial investigations note that the mean day-of-year for early runtiming is shifted to the right 3 days for 2008 and 2 days for 2015, indicating that the estimated distribution is pulled to the right of what it should be. Biologists not that harvest may have been different as a result of runsizes. Also examining time and area harvest to include in runtime estimates may improve the model. 
 
 It is important to note that the definition of the run, at least in terms of this model, changed from what is currently used. Harvest farther from the Chignik area were excluded. If this model, or one like it were used in the future it should be determined if the run estimates for this model are only to distinguish the percentage of early vs late run stocks (recommended for near term), or if the methods behind estimates of harvest should be reexamined, (recommended for the future).
 
