@@ -1,0 +1,111 @@
+---
+title: "Chignik Early Run Modeling"
+author: "Sarah Power"
+date: "September 4, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+```{r}
+# load ----
+library(tidyverse)
+library(mixdist)
+library(lubridate)
+library(zoo) # to convert numeric date back to a number
+source('code/distribution_functions.R')
+
+# data ----
+chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
+  dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
+  rename(#date = Date,
+         prop_early_genetics = Propotionearly, 
+         early_esc_genetics = Earlyesc, 
+         late_esc_genetics = Lateesc,
+         #early_catch_genetics = Earlycatch,
+         #late_catch_genetics = Latecatch,
+         #early_total_genetics = Earlytotal,
+         #late_total_genetics = Latetotal,
+         chignik = Chignik_Hook_Kujulik) %>%
+  mutate(esc = early_esc_genetics + late_esc_genetics,
+         #catch = early_catch_genetics + late_catch_genetics,
+         catch_chignik = Lagoon + chignik,
+         run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
+         run_early_gen = prop_early_genetics*run,
+         date = mdy(Date),
+         day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
+
+read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
+  dplyr::select(-X9) %>%
+  rename(prop_early_genetics = Propotionearly, 
+         early_esc_genetics = Earlyesc, 
+         late_esc_genetics = Lateesc,
+         early_catch_genetics = Earlycatch,
+         late_catch_genetics = Latecatch,
+         early_total_genetics = Earlytotal,
+         late_total_genetics = Latetotal) %>%
+  mutate(esc = early_esc_genetics + late_esc_genetics,
+         catch = early_catch_genetics + late_catch_genetics,
+         run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
+         run_early_gen = prop_early_genetics*run,
+         date = mdy(Date),
+         day_of_year = yday(date)) -> weir_data # convert the Date to its numeric equivalent
+
+year_vector <- c(2006:2008,2010:2017)
+```
+
+
+## Chignik Early Run Timing
+
+For over a decade genetic samples have been collected at the Chignik weir which has enabled the early run, which mostly spawns in Black Lake to be distinguished form later runs, most of which spawn in Chignik Lake. Currently these stocks are managed separately. The processing of genetics samples can be expensive, and so alternative methods for distinguishing between the stocks are being examined. In the years before genetic assignment July 4th was used as a cut off date between the early and late runs with the understanding that some early run fish come in later and some later run fish come in earlier.
+
+In this analysis we will examine the runtiming distributions to determine how well we can discern the early run stocks from the later ones on runtiming alone. We will compare this to the runtiming distributions that are determined with the additional aid of genetics to see how viable this method might be.
+
+Currently the run consists of the escapement as captured by the weir, as well as catch from various districts, some of which are quite far away. The genetic assignment at the weir is attributed to catch from nearer to farther districts with the understanding that the genetic assignment found at the weir today, should be attributed to what was caught in the lagoon yesterday, and caught in the Chicknig area outside of that two days ago, and beyond that various lag times as determined by other literature.  
+
+Our method of modeling is to use maximum likelihood methods including the EM algorithm and a Newton-type algorithm to parse out various distributions using the mixdist package in R.
+
+Creelman(2011) considered that the early run and later runs are made up of various smaller runs with their own runtiming and run locations. She grouped collections she had into four genetic groups: Black Lake, Chignik Lake, Chignik Lake October, and Chingnik River. She found that run timing played an important role in genetic variation. 
+
+The data from the weir Is collected from about late may until the end of September. Looking at the distributions there appears to be three modes. The assumption we will take is that there are three modes presented in the data, that maybe there would be a fourth if data were collected into October. 
+Normal and Weibull distributions were fit, also certain constraints were considered inorder to find the best fit. Those constraints included equal standard errors; means equally spaced, and having the mean or standard error of the early distribution fixed to median value of the corresponding parameter of distributions that used genetic information to determine runtiming. 
+
+It was determined that the best fitting model was a trimodal normally distributed model with the constraint of equal standard deviations for each of the distributions. 
+
+With this model for 8 of the 11 years early run counts using runtiming alone were with 10% of the counts using additional genetic information. 
+The three best years included 2010, 2013, and 2014, were early run counts using runtiming alone differed by no more than 3% of the counts using addtional genetic information. 
+
+(show graphs)
+```{r }
+
+```
+
+The three years that runtiming distributions were off by more than that included 2008, which overestimated the early run by 27%, 2015 where it underestimated the early run by 25% and 2012 where is over estimated the run by a whopping 67%. 
+
+(show graphs)
+```{r }
+
+```
+
+It was suggested that using catch information from farther flung districts might add noise to the distributions since those districts surely would contain harvest from non-Chignik stocks and have more variable arrival dates. The analysis was reexamined this time using only harvests that were a day or twos fish-swim away. 
+
+This changed improved the model. The most significant change being that of the year 2012 which changed from an over estimate of 67% to an over estimate of 5%, which is much more reasonable. The 2008 and 2015 estimates were similar with a 25% over estimate and 26% underestimate respectively.
+
+Further future analysis could include examining if there are any factors that explain why 2008 and 2015 preformed poorly with the model. Also examining time and area harvest to include in runtime estimates may improve the model. 
+
+It is important to note that the definition of the run, at least in terms of this model, changed from what is currently used. Harvest farther from the Chignik area were excluded. If this model, or one like it were used in the future it should be determined if the run estimates for this model are only to distinguish the percentage of early vs late run stocks (recommended for near term), or if the methods behind estimates of harvest should be reexamined, (recommended for the future).
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
