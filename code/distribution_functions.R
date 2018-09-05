@@ -39,7 +39,7 @@ year_stats <- function (df, year_wanted){
   dist_plot (fit, year_wanted)
   df_fit_early <- data_prep_early(df, year_wanted)
   fit_early <- distribution_estimation_norms(df_fit_early)
-  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
+
   print("Dist mean & sd")
   print(c(fit$parameters$mu[1], fit$parameters$sigma[1]))
   print("Gen mean & sd")
@@ -49,20 +49,24 @@ year_stats <- function (df, year_wanted){
            run_early_dis = dist_percent*run,
            cum_run_dis = cumsum(run_early_dis),
            cum_run_gen = cumsum(run_early_gen)) ->df
-  
+  print("Number of early run by runtiming distribution")
+  print(max(df$cum_run_dis))
+  print("Number of early run by genetics runtiming distribution")
+  print(max(df$cum_run_gen))
+  print("runtiming distribution/genetics runtiming distribution")
+  print(max(df$cum_run_dis)/max(df$cum_run_gen))
   ggplot(df, aes(day_of_year))+
     geom_line(aes(y=dist_percent), colour = "green")+
     geom_line(aes(y=prop_early_genetics), colour = "blue")+
-    ggtitle("Genetics vs Distributional Runtiming Assignment")
-
+    ggtitle(paste0("Genetics vs Distributional Runtiming Assignment", year_wanted))
   ggplot(df, aes(day_of_year))+
     geom_line(aes(y=cum_run_dis), colour = "green")+
     geom_line(aes(y=cum_run_gen), colour = "blue")+
     labs(y = "cumulative run", x= "day of the year")+
-    ggtitle("Genetics vs Distributional Early Run")
+    ggtitle(paste0("Genetics vs Distributional Early Run ", year_wanted))
 }
 
-year_stats(weir_data, 2006)
+#year_stats(weir_data, 2017)
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
@@ -85,7 +89,7 @@ early_look <- function(df, year_wanted){
 }
 
 
-distribution_estimation_norms <- distribution_estimation <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+distribution_estimation_norms <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -169,10 +173,26 @@ distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_g
   
 }
 
+distribution_estimation_weibull_SEQ <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
+  
+  if(missing(mean_guess_given)) {
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
+  } else {
+    mean_guess = mean_guess_given
+  }
+  if(missing(sigma_guess_given)) {
+    sigma_guess = rep(9, each = num_of_distributions)
+  } else {
+    sigma_guess = sigma_guess_given
+  }
+  
+  (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess), constr = mixconstr(consigma="SEQ"), dist=distibution_guess))  #, iterlim=5000
+  
+}
 
 dist_plot <- function (fitpro, year_wanted){
   #Plot the results  
-  plot(fitpro, main=year_wanted ) 
+  plot(fitpro, main=year_wanted) 
   grid()  
   legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
   
@@ -186,9 +206,9 @@ auto_year<- function (df, year_wanted) {
   graph_year(df_year)
   fitpro <- distribution_estimation_norms(df_year) 
   dist_plot(fitpro, year_wanted )
-  fitpro <- distribution_estimation_norms_SEQ(df_year) 
-  dist_plot(fitpro, year_wanted ) 
   fitpro <- distribution_estimation_norms_MFX(df_year) 
+  dist_plot(fitpro, year_wanted ) 
+  fitpro <- distribution_estimation_norms_SEQ(df_year) 
   dist_plot(fitpro, year_wanted ) 
 }
 
