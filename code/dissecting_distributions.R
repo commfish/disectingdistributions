@@ -61,6 +61,11 @@ early_look(chig_data, 2015)
 early_look(weir_data, 2016) 
 early_look(weir_data, 2017) 
 
+distribution_estimation_norms_SEQ_n1(chig_data, 2006)
+
+for(i in year_vector ){
+  distribution_estimation_norms_SEQ_n1(chig_data, i)
+}
 for(i in year_vector ){
   early_look(chig_data, i)
 }
@@ -111,7 +116,9 @@ weir_2006 <- data_prep(weir_data, 2008)
 weir_2006<- as.mixdata(weir_2006)
 (fit <- mix(as.mixdata(weir_2006), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)),constr = mixconstr(consigma="SEQ"), dist= 'gamma', iterlim=5000)) 
 (fit<- mix(as.mixdata(weir_2006), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)), constr = mixconstr(consigma="SEQ"), dist='weibull'))  #, iterlim=5000
+mean_guess <- c(fit$parameters$mu[1]-1,fit$parameters$mu[2],fit$parameters$mu[3])
 plot(fit)
+fit$parameters$mu[1]-1
 
 dist_plot(fit, 2006)
 percent_dist(fit, 191) #date when fifty percent is early run. According to distributions: July 10 
@@ -125,40 +132,6 @@ weir_2006$cum <- cumsum(weir_2006$run_dis)
 percent_dist(fit, 178) #date when fifty percent is early run. According to distributions? 
 pnormfit(fit, 178)
 
-
-year_stats <- function (df, year_wanted){
-  df %>%
-    filter(year(date)==year_wanted)-> df
-  run_size <-sum(df$run)
-  print("Run")
-  print(run_size)
-  df_fit <- data_prep(df, year_wanted)
-  fit <- distribution_estimation_norms_SEQ(df_fit) 
-  dist_plot (fit, year_wanted)
-  df_fit_early <- data_prep_early(df, year_wanted)
-  fit_early <- distribution_estimation_norms(df_fit_early)
-  fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
-  print("Dist mean & sd")
-  print(c(fit$parameters$mu[1], fit$parameters$sigma[1]))
-  print("Gen mean & sd")
-  print(c(fit_early$parameters$mu[1], fit_early$parameters$sigma[1]))
-  df %>%
-    mutate(dist_percent = percent_dist(fit, df$day_of_year),
-           run_early_dis = dist_percent*run,
-           cum_run_dis = cumsum(run_early_dis),
-           cum_run_gen = cumsum(run_early_gen)) ->df
-  
-  ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=dist_percent), colour = "green")+
-    geom_line(aes(y=prop_early_genetics), colour = "blue")+
-    ggtitle("Genetics vs Distributional Runtiming Assignment")
-  
-  ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=cum_run_dis), colour = "green")+
-    geom_line(aes(y=cum_run_gen), colour = "blue")+
-    labs(y = "cumulative run", x= "day of the year")+
-    ggtitle("Genetics vs Distributional Early Run")
-}
 
 
 

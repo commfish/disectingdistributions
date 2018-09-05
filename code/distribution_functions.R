@@ -31,39 +31,39 @@ data_prep_early <- function(df, year_wanted){
 year_stats <- function (df, year_wanted){
   df %>%
     filter(year(date)==year_wanted)-> df
-  run_size <-sum(df$run)
-  print("Run")
-  print(run_size)
+  #run_size <-sum(df$run)
+  #print("Run")
+  #print(run_size)
   df_fit <- data_prep(df, year_wanted)
   fit <- distribution_estimation_norms_SEQ(df_fit) 
-  dist_plot (fit, year_wanted)
+  #dist_plot (fit, year_wanted)
   df_fit_early <- data_prep_early(df, year_wanted)
   fit_early <- distribution_estimation_norms(df_fit_early)
 
-  print("Dist mean & sd")
-  print(c(fit$parameters$mu[1], fit$parameters$sigma[1]))
-  print("Gen mean & sd")
-  print(c(fit_early$parameters$mu[1], fit_early$parameters$sigma[1]))
+  #print("Mean day-of-year & sd based on runtiming distributions alone")
+  #print(c(yday(fit$parameters$mu[1]), fit$parameters$sigma[1]))
+  #print("Mean day-of-year & sd based on additional genetics information")
+  #print(c(yday(fit_early$parameters$mu[1]), fit_early$parameters$sigma[1]))
   df %>%
     mutate(dist_percent = percent_dist(fit, df$day_of_year),
            run_early_dis = dist_percent*run,
            cum_run_dis = cumsum(run_early_dis),
            cum_run_gen = cumsum(run_early_gen)) ->df
-  print("Number of early run by runtiming distribution")
-  print(max(df$cum_run_dis))
-  print("Number of early run by genetics runtiming distribution")
-  print(max(df$cum_run_gen))
-  print("runtiming distribution/genetics runtiming distribution")
-  print(max(df$cum_run_dis)/max(df$cum_run_gen))
+  #print("Number of early run by runtiming distribution")
+  #print(max(df$cum_run_dis))
+  #print("Number of early run by genetics runtiming distribution")
+  #print(max(df$cum_run_gen))
+  #print("runtiming distribution/genetics runtiming distribution")
+  #print(max(df$cum_run_dis)/max(df$cum_run_gen))
   ggplot(df, aes(day_of_year))+
     geom_line(aes(y=dist_percent), colour = "green")+
     geom_line(aes(y=prop_early_genetics), colour = "blue")+
-    ggtitle(paste0("Genetics vs Distributional Runtiming Assignment", year_wanted))
+    ggtitle(paste0("Gen vs DistRuntiming Assignment", year_wanted))
   ggplot(df, aes(day_of_year))+
     geom_line(aes(y=cum_run_dis), colour = "green")+
     geom_line(aes(y=cum_run_gen), colour = "blue")+
     labs(y = "cumulative run", x= "day of the year")+
-    ggtitle(paste0("Genetics vs Distributional Early Run ", year_wanted))
+    ggtitle(paste0("Gen vs Dist Early Run ", year_wanted))
 }
 
 #year_stats(weir_data, 2017)
@@ -140,6 +140,26 @@ distribution_estimation_norms_SEQ <- function(df, num_of_distributions = 3, mean
   
 }
 
+distribution_estimation_norms_SEQ_n1 <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
+  
+  if(missing(mean_guess_given)) {
+    mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
+  } else {
+    mean_guess = mean_guess_given
+  }
+  if(missing(sigma_guess_given)) {
+    sigma_guess = rep(9, each = num_of_distributions)
+  } else {
+    sigma_guess = sigma_guess_given
+  }
+  
+  fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SEQ"), dist=distibution_guess, iterlim=5000)
+  
+  mean_guess <- c(fitpro$parameters$mu[1]-1,fitpro$parameters$mu[2],fitpro$parameters$mu[3])
+  fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(conmu= "MFX", fixmu = c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000)
+  
+}
+
 distribution_estimation_norms_SFX <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -197,17 +217,17 @@ dist_plot <- function (fitpro, year_wanted){
   legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
   
   #Estimated mean date and sigmas.
-  summary(fitpro) 
+  #summary(fitpro) 
 }
   
 
 auto_year<- function (df, year_wanted) {
   df_year <- data_prep(df, year_wanted) 
-  graph_year(df_year)
-  fitpro <- distribution_estimation_norms(df_year) 
-  dist_plot(fitpro, year_wanted )
-  fitpro <- distribution_estimation_norms_MFX(df_year) 
-  dist_plot(fitpro, year_wanted ) 
+  #graph_year(df_year)
+  #fitpro <- distribution_estimation_norms(df_year) 
+  #dist_plot(fitpro, year_wanted )
+  #fitpro <- distribution_estimation_norms_MFX(df_year) 
+  #dist_plot(fitpro, year_wanted ) 
   fitpro <- distribution_estimation_norms_SEQ(df_year) 
   dist_plot(fitpro, year_wanted ) 
 }
@@ -224,6 +244,42 @@ percent_dist <- function(fit, x, dist_num = 1){
 
 pnormfit <- function(fit, x, dist_num =1){
   fit$parameters$pi[dist_num]*pnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
+}
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  require(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
 }
 
 #This function still needs work. 
