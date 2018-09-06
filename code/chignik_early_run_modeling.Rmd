@@ -117,12 +117,36 @@ It is important to note that the definition of the run, at least in terms of thi
 Below are the graphs for all the years using model with the more conservative data set:
 
 ```{r all_year_graphs}
-year_vector <- c(2006:2008,2010:2017)
+auto_year(chig_data, 2006)
+year_stats(chig_data, 2006)
+auto_year(chig_data, 2007)
+year_stats(chig_data, 2007)
+auto_year(chig_data, 2008)
+year_stats(chig_data, 2008)
+auto_year(chig_data, 2010)
+year_stats(chig_data, 2010)
+auto_year(chig_data, 2011)
+year_stats(chig_data, 2011)
+auto_year(chig_data, 2012)
+year_stats(chig_data, 2012)
+auto_year(chig_data, 2013)
+year_stats(chig_data, 2013)
+auto_year(chig_data, 2014)
+year_stats(chig_data, 2014)
+auto_year(chig_data, 2015)
+year_stats(chig_data, 2015)
+auto_year(chig_data, 2016)
+year_stats(chig_data, 2016)
+auto_year(chig_data, 2017)
+year_stats(chig_data, 2017)
 
-for(i in year_vector){
-  auto_year(chig_data, i)
-  year_stats(chig_data, i)
-}
+#year_vector <- c(2006:2008,2010:2017)
+
+#for(i in year_vector){
+#  auto_year(chig_data, i)
+#  year_stats(chig_data, i)
+#}
+#year_stats(weir_data, 2015)
 ```
 
 

@@ -156,7 +156,7 @@ distribution_estimation_norms_SEQ_n1 <- function(df, num_of_distributions = 3, m
   
   fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SEQ"), dist=distibution_guess, iterlim=5000)
   
-  mean_guess <- c(fitpro$parameters$mu[1]-1,fitpro$parameters$mu[2],fitpro$parameters$mu[3])
+  mean_guess <- c(fitpro$parameters$mu[1],fitpro$parameters$mu[2],fitpro$parameters$mu[3])
   fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(conmu= "MFX", fixmu = c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000)
   
 }

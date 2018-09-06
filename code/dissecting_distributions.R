@@ -61,7 +61,6 @@ early_look(chig_data, 2015)
 early_look(weir_data, 2016) 
 early_look(weir_data, 2017) 
 
-distribution_estimation_norms_SEQ_n1(chig_data, 2006)
 
 for(i in year_vector ){
   distribution_estimation_norms_SEQ_n1(chig_data, i)
@@ -116,7 +115,7 @@ weir_2006 <- data_prep(weir_data, 2008)
 weir_2006<- as.mixdata(weir_2006)
 (fit <- mix(as.mixdata(weir_2006), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)),constr = mixconstr(consigma="SEQ"), dist= 'gamma', iterlim=5000)) 
 (fit<- mix(as.mixdata(weir_2006), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)), constr = mixconstr(consigma="SEQ"), dist='weibull'))  #, iterlim=5000
-mean_guess <- c(fit$parameters$mu[1]-1,fit$parameters$mu[2],fit$parameters$mu[3])
+mean_guess <- c(fit$parameters$mu[1],fit$parameters$mu[2],fit$parameters$mu[3])
 plot(fit)
 fit$parameters$mu[1]-1
 
