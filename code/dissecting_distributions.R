@@ -44,7 +44,8 @@ read_csv('data/ChigISGrunappt2006-2017.csv') %>%
          run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
-         day_of_year = yday(date)) -> weir_data # convert the Date to its numeric equivalent
+         day_of_year = yday(date)) %>% # convert the Date to its numeric equivalent
+  as.data.frame()-> weir_data 
 
 year_vector <- c(2006:2008,2010:2017)
 

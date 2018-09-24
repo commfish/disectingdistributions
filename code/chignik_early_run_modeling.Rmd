@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 # load ----
 library(zoo) # to convert numeric date back to a number
 source('distribution_functions.R')
+options(scipen=999)
 
 # data ----
 chig_data <- read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
@@ -52,7 +53,8 @@ read_csv('../data/ChigISGrunappt2006-2017.csv') %>%
          run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
-         day_of_year = yday(date)) -> weir_data # convert the Date to its numeric equivalent
+         day_of_year = yday(date)) %>%
+  as.data.frame()-> weir_data # convert the Date to its numeric equivalent
 
 year_vector <- c(2006:2008,2010:2017)
 ```
