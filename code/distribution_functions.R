@@ -10,6 +10,7 @@ library(lubridate)
 #library(here)
 
 windowsFonts(Times=windowsFont("Times New Roman"))
+options(scipen = 999)
 
 theme_sleek <- function(base_size = 12, base_family = "Times") {
   half_line <- base_size/2
@@ -50,6 +51,8 @@ data_prep_early <- function(df, year_wanted){
 }
 
 year_stats <- function (df, year_wanted){
+  df <- chig_data
+  year_wanted = 2006
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -76,16 +79,24 @@ year_stats <- function (df, year_wanted){
   #print(max(df$cum_run_gen))
   #print("runtiming distribution/genetics runtiming distribution")
   #print(max(df$cum_run_dis)/max(df$cum_run_gen))
+  df %>%
+    dplyr::select(day_of_year, dist_percent, prop_early_genetics) -> df
+  df %>% melt(id = "day_of_year") -> df
   ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=dist_percent), colour = "green")+
-    geom_line(aes(y=prop_early_genetics), colour = "blue")+
+    geom_line(aes(y=dist_percent), colour = "Distribution only")+
+    geom_line(aes(y=prop_early_genetics), colour = "With genetics")+
     ggtitle(paste0("Gen vs DistRuntiming Assignment", year_wanted))
   ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=cum_run_dis), colour = "green")+
-    geom_line(aes(y=cum_run_gen), colour = "blue")+
+    geom_line(aes(y=cum_run_dis), colour = "Distribution only")+
+    geom_line(aes(y=cum_run_gen), colour = "With genetics")+
     labs(y = "cumulative run", x= "day of the year")+
+    scale_colour_manual("", 
+                        breaks = c("Distribution only", "With genetics"),
+                        values=c("Distribution only" = "green", "With genetics" = "blue"))+
     ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
 }
+
+year_stats(chig_data, 2006)
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----

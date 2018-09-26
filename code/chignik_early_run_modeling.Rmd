@@ -1,8 +1,10 @@
 ---
 title: "Chignik Early Run Modeling"
 author: "Sarah Power"
-date: "September 4, 2018"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output: pdf_document
+  html_document: default
+  word_document: default
 ---
 # Recipients
 Heather Finkle,
@@ -104,6 +106,8 @@ year_stats(weir_data, 2015)
 
 It was suggested by Heather Finkle that using catch information from farther flung districts might add noise to the distributions since those districts surely would contain harvest from non-Chignik stocks. The analysis was reexamined this time using only harvests that were a day or twos fish-swim away. 
 
+# Results
+
 This change improved the model. The most significant change being that of the year 2012 which changed from an over estimate of 67% to an over estimate of 5%, which is much more reasonable. The 2008 and 2015 estimates were similar with a 25% over estimate and 26% underestimate respectively.
 
 ```{r even_better}
@@ -122,6 +126,10 @@ Elisabeth K. Creelman, Lorenz Hauser, Ryan K. Simmons, William D. Templin & Lisa
 Using Single-Nucleotide Polymorphisms, Transactions of the American Fisheries Society, 140:3, 749-762
 
 Link to this article: http://dx.doi.org/10.1080/00028487.2011.584494
+
+# R Session Info
+
+sessionInfo()
 
 # Appendix A
 Below are the graphs for all the years using model with the more conservative data set:
@@ -158,5 +166,4 @@ year_stats(chig_data, 2017)
 #}
 #year_stats(weir_data, 2015)
 ```
-
 
