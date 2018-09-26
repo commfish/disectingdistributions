@@ -50,6 +50,7 @@ class(weir_data)
 class(chig_data)
 weir_data <- as.data.frame(weir_data)
 
+
 year_vector <- c(2006:2008,2010:2017)
 
 early_look(weir_data, 2006) 
@@ -69,6 +70,7 @@ early_look(weir_data, 2017)
 for(i in year_vector ){
   distribution_estimation_norms_SEQ_n1(chig_data, i)
 }
+
 for(i in year_vector ){
   early_look(chig_data, i)
 }

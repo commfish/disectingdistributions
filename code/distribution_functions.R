@@ -6,37 +6,7 @@
 # load ----
 library(tidyverse)
 library(mixdist)
-library(lubridate)
-#if(!require("cowplot"))   install.packages("cowplot")
-
-#install.packages("devtools")
-#devtools::install_github("ben-williams/FNGr")
-#library("FNGr")
-
-#library(gridExtra) #for multiple plots on a page
 #library(here)
-#source('code/functions.R')
-
-#windowsFonts(Times=windowsFont("Times New Roman"))
-
-theme_sleek <- function(base_size = 12, base_family = "Times") {
-  half_line <- base_size/2
-  theme_light(base_size = 12, base_family = "Times") +
-    theme(
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.ticks.length = unit(half_line / 2.2, "pt"),
-      strip.background = element_rect(fill = NA, colour = NA),
-      strip.text.x = element_text(colour = "black"),
-      strip.text.y = element_text(colour = "black"),
-      panel.border = element_rect(fill = NA),
-      legend.key.size = unit(0.9, "lines"),
-      legend.key = element_rect(colour = NA, fill = NA),
-      legend.background = element_rect(colour = NA, fill = NA)
-    )
-}
-
-#theme_set(theme_sleek())
 
 # functions ----
 data_prep <- function(df, year_wanted){
@@ -93,8 +63,6 @@ year_stats <- function (df, year_wanted){
     labs(y = "cumulative run", x= "day of the year")+
     ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
 }
-
-#year_stats(weir_data, 2017)
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
@@ -240,7 +208,7 @@ distribution_estimation_weibull_SEQ <- function(df, num_of_distributions = 3, me
 
 dist_plot <- function (fitpro, year_wanted){
   #Plot the results  
-  ggplot(fitpro, main=year_wanted) 
+  plot(fitpro, main=year_wanted) 
   grid()  
   legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
   
