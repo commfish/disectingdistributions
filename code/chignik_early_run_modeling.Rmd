@@ -22,7 +22,7 @@ options(scipen=999)
 # data ----
 chig_data <- read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
-  rename(#date = Date,
+  dplyr::rename(#date = Date,
          prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc,
@@ -41,7 +41,7 @@ chig_data <- read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>
 
 read_csv('../data/ChigISGrunappt2006-2017.csv') %>% 
   dplyr::select(-X9) %>%
-  rename(prop_early_genetics = Propotionearly, 
+  dplyr::rename(prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc,
          early_catch_genetics = Earlycatch,

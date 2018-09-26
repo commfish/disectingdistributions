@@ -13,7 +13,7 @@ source('code/distribution_functions.R')
 # data ----
 chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
-  rename(#date = Date,
+  dplyr::rename(#date = Date,
          prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc,
@@ -30,9 +30,9 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          date = mdy(Date),
          day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
 
-read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
+weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
   dplyr::select(-X9) %>%
-  rename(prop_early_genetics = Propotionearly, 
+  dplyr::rename(prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc,
          early_catch_genetics = Earlycatch,
@@ -44,8 +44,11 @@ read_csv('data/ChigISGrunappt2006-2017.csv') %>%
          run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
-         day_of_year = yday(date)) %>% # convert the Date to its numeric equivalent
-  as.data.frame()-> weir_data 
+         day_of_year = yday(date)) # %>% # convert the Date to its numeric equivalent
+
+class(weir_data)
+class(chig_data)
+weir_data <- as.data.frame(weir_data)
 
 year_vector <- c(2006:2008,2010:2017)
 
