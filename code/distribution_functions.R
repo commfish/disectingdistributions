@@ -6,6 +6,7 @@
 # load ----
 library(tidyverse)
 library(mixdist)
+library(reshape2)
 library(lubridate)
 #library(here)
 
@@ -80,19 +81,20 @@ year_stats <- function (df, year_wanted){
   #print("runtiming distribution/genetics runtiming distribution")
   #print(max(df$cum_run_dis)/max(df$cum_run_gen))
   df %>%
-    dplyr::select(day_of_year, dist_percent, prop_early_genetics) -> df
-  df %>% melt(id = "day_of_year") -> df
-  ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=dist_percent), colour = "Distribution only")+
-    geom_line(aes(y=prop_early_genetics), colour = "With genetics")+
-    ggtitle(paste0("Gen vs DistRuntiming Assignment", year_wanted))
-  ggplot(df, aes(day_of_year))+
-    geom_line(aes(y=cum_run_dis), colour = "Distribution only")+
-    geom_line(aes(y=cum_run_gen), colour = "With genetics")+
+    dplyr::select(day_of_year, dist_percent, prop_early_genetics) %>% 
+    melt(id = "day_of_year") -> df2
+  ggplot(df2, aes(day_of_year, value, colour = variable))+
+    geom_line()+
+    scale_colour_manual(values=c("green", "blue"))+
+    ggtitle(paste0("Gen vs Dist Runtiming Assignment", year_wanted))
+  
+  df %>%
+    dplyr::select(day_of_year, cum_run_dis, cum_run_gen) %>% 
+    melt(id = "day_of_year") -> df3
+  ggplot(df3, aes(day_of_year, value, colour = variable))+
+    geom_line()+
+    scale_colour_manual(values=c("green", "blue"))+
     labs(y = "cumulative run", x= "day of the year")+
-    scale_colour_manual("", 
-                        breaks = c("Distribution only", "With genetics"),
-                        values=c("Distribution only" = "green", "With genetics" = "blue"))+
     ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
 }
 
