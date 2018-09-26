@@ -2,8 +2,12 @@
 title: "Chignik Early Run Modeling"
 author: "Sarah Power"
 date: "September 4, 2018"
-output: html_document
+output: pdf_document
 ---
+# Recipients
+Heather Finkle,
+Birch Foster,
+Kevin Schaberg.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -107,10 +111,19 @@ auto_year(chig_data, 2012)
 year_stats(chig_data, 2012)
 ```
 
+# Recommendations/Discussion
 Future analysis could include examining if there are any factors that explain why 2008 and 2015 preformed poorly with the model. Initial investigations note that the mean day-of-year for early runtiming is shifted to the right 3 days for 2008 and 2 days for 2015, indicating that the estimated distribution is pulled to the right of what it would be using additional genetic information. Biologists note that harvest and runsize may have been different. Also examining time and area harvest to include in runtime estimates may improve the model. 
 
 It is important to note that the definition of the run, at least in terms of this model, changed from what is currently used. Harvest farther from the Chignik area were excluded. If this model, or one like it were used in the future it should be determined if the run estimates for this model are only to distinguish the percentage of early vs late run stocks (recommended for near term), or if the methods behind estimates of harvest should be reexamined, (recommended for the future).
 
+# Citation
+
+Elisabeth K. Creelman, Lorenz Hauser, Ryan K. Simmons, William D. Templin & Lisa W. Seeb (2011):Temporal and Geographic Genetic Divergence: Characterizing Sockeye Salmon Populations in the Chignik Watershed, Alaska,
+Using Single-Nucleotide Polymorphisms, Transactions of the American Fisheries Society, 140:3, 749-762
+
+Link to this article: http://dx.doi.org/10.1080/00028487.2011.584494
+
+# Appendix A
 Below are the graphs for all the years using model with the more conservative data set:
 
 ```{r all_year_graphs}
