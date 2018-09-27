@@ -6,7 +6,7 @@
 # load ----
 library(tidyverse)
 library(mixdist)
-library(reshape2)
+library(data.table)
 library(lubridate)
 #library(here)
 
@@ -93,8 +93,11 @@ year_stats <- function (df, year_wanted){
     melt(id = "day_of_year") -> df3
   ggplot(df3, aes(day_of_year, value, colour = variable))+
     geom_line()+
-    scale_colour_manual(values=c("green", "blue"))+
-    labs(y = "cumulative run", x= "day of the year")+
+    scale_colour_manual(name = "Modeled by",
+                        labels = c("Distribution only", "Genetics"), 
+                        values=c("green", "blue"))+
+    labs(y = "cumulative run", x= "day of the year", color = "Modeled by")+
+    #theme(legend.justification = c(1.0), legend.position = c(1,0))
     ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
 }
 
@@ -244,10 +247,14 @@ distribution_estimation_weibull_SEQ <- function(df, num_of_distributions = 3, me
 
 dist_plot <- function (fitpro, year_wanted){
   #Plot the results  
+  # pdf(NULL)
+  # dev.control(displaylist="enable")
   plot(fitpro, main=year_wanted) 
   grid()  
   legend("topright", lty=1, lwd=c(1, 1, 2), c("Original Distribution to be Fit", "Individual Fitted Distributions", "Fitted Distributions Combined"), col=c("blue", "red", rgb(0.2, 0.7, 0.2)), bg="white")  
-  
+  # p1 <- recordPlot()
+  # invisible(dev.off())
+  # return(p1)
   #Estimated mean date and sigmas.
   #summary(fitpro) 
 }
@@ -260,7 +267,7 @@ auto_year<- function (df, year_wanted) {
   #fitpro <- distribution_estimation_norms_MFX(df_year) 
   #dist_plot(fitpro, year_wanted ) 
   fitpro <- distribution_estimation_norms_SEQ(df_year) 
-  dist_plot(fitpro, year_wanted ) 
+  dist_plot(fitpro, year_wanted )
 }
 
 

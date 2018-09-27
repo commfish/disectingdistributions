@@ -82,7 +82,7 @@ The three best years included 2010, 2013, and 2014, where early run counts using
 Once this model was determined to be the best the run counts of each of the years were examined. For 8 of the 11 years Between 2006 and 2017 early run counts using runtiming alone were with 10% of the counts using additional genetic information. The three best years included 2010, 2013, and 2014, where early run counts using runtiming information alone differed by no more than 3% of the counts using additional genetic information. 
 
 ```{r three_best}
-auto_year(weir_data, 2010)
+
 year_stats(weir_data, 2010)
 auto_year(weir_data, 2013)
 year_stats(weir_data, 2013)
