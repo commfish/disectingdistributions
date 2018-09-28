@@ -32,7 +32,6 @@ theme_sleek <- function(base_size = 12, base_family = "Times") {
 
 theme_set(theme_sleek())
 
-
 # functions ----
 data_prep <- function(df, year_wanted){
   df %>% 
@@ -52,8 +51,8 @@ data_prep_early <- function(df, year_wanted){
 }
 
 year_stats <- function (df, year_wanted){
-  df <- chig_data
-  year_wanted = 2006
+  #df <- chig_data
+  #year_wanted = 2006
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -69,39 +68,49 @@ year_stats <- function (df, year_wanted){
   #print(c(yday(fit$parameters$mu[1]), fit$parameters$sigma[1]))
   #print("Mean day-of-year & sd based on additional genetics information")
   #print(c(yday(fit_early$parameters$mu[1]), fit_early$parameters$sigma[1]))
+  
   df %>%
     mutate(dist_percent = percent_dist(fit, df$day_of_year),
            run_early_dis = dist_percent*run,
            cum_run_dis = cumsum(run_early_dis),
            cum_run_gen = cumsum(run_early_gen)) ->df
+  min(df$day_of_year, na.rm = TRUE)
   #print("Number of early run by runtiming distribution")
   #print(max(df$cum_run_dis))
   #print("Number of early run by genetics runtiming distribution")
   #print(max(df$cum_run_gen))
   #print("runtiming distribution/genetics runtiming distribution")
   #print(max(df$cum_run_dis)/max(df$cum_run_gen))
+  #xaxis <- tickr(df, day_of_year, 5)
   df %>%
     dplyr::select(day_of_year, dist_percent, prop_early_genetics) %>% 
     melt(id = "day_of_year") -> df2
   ggplot(df2, aes(day_of_year, value, colour = variable))+
     geom_line()+
-    scale_colour_manual(values=c("green", "blue"))+
-    ggtitle(paste0("Gen vs Dist Runtiming Assignment", year_wanted))
+    scale_colour_manual(name = "Modeled by",
+                        labels = c("Distribution only", "Genetics"), 
+                        values=c("green", "blue"))+
+    labs(y = "Proportion of run", x= "Day of the year")+
+    theme(legend.justification = c(1,1), legend.position = c(1,1))+
+    ggtitle(paste0(year_wanted, " Runtiming Assignment "))
   
   df %>%
     dplyr::select(day_of_year, cum_run_dis, cum_run_gen) %>% 
     melt(id = "day_of_year") -> df3
+  #yaxis <- tickr(df3, value, 10000)  
   ggplot(df3, aes(day_of_year, value, colour = variable))+
     geom_line()+
     scale_colour_manual(name = "Modeled by",
                         labels = c("Distribution only", "Genetics"), 
                         values=c("green", "blue"))+
-    labs(y = "cumulative run", x= "day of the year", color = "Modeled by")+
-    #theme(legend.justification = c(1.0), legend.position = c(1,0))
-    ggtitle(paste0("Number of run in Genetic(blue) vs Distribution only (green) Early Run ", year_wanted))
+    labs(y = "Cumulative run", x= "Day of the year")+
+    #scale_x_continuous(breaks = xaxis$breaks, labels = xaxis$labels)+
+    #scale_y_continuous(breaks = yaxis$breaks, labels = yaxis$labels)+
+    coord_cartesian(xlim = c(150, 220))+
+    theme(legend.justification = c(1,0), legend.position = c(1,0))+
+    ggtitle(paste0(year_wanted, " Early Run Estimation"))
 }
 
-year_stats(chig_data, 2006)
 
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
