@@ -9,6 +9,7 @@ Heather Finkle.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+mfrow=c(1, 2) 
 ```
 ```{r data entry}
 # load ----
@@ -55,7 +56,7 @@ year_vector <- c(2006:2008,2010:2017)
 
 # Background
 
-For over a decade genetic samples of sockeye (*italic*Oncorhynchus nerka*italic*) have been collected at the Chignik weir to distinguish the early run, which mostly spawns in Black Lake from later runs. The majority of these later runs spawn in Chignik Lake. Currently these stocks are managed separately. The processing of genetics samples is expensive, and therefore alternative methods for distinguishing between the stocks are being examined. In the years prior to genetic assignment July 4th was used as a cut off date between the early and late runs with the understanding that some early run fish arrive later and some later run fish arrive earlier.
+For over a decade genetic samples of sockeye (*Oncorhynchus nerka*) have been collected at the Chignik weir to distinguish the early run, which mostly spawns in Black Lake from later runs. The majority of these later runs spawn in Chignik Lake. Currently these stocks are managed separately. The processing of genetics samples is expensive, and therefore alternative methods for distinguishing between the stocks are being examined. In the years prior to genetic assignment July 4th was used as a cut off date between the early and late runs with the understanding that some early run fish arrive later and some later run fish arrive earlier.
 
 This analysis examines run timing distributions to determine how well early run stocks can be discerned from later stocks on run timing alone. The results will be compared to the run timing distributions that are determined with the additional aid of genetics to examine the viability of this method.
 
@@ -76,7 +77,7 @@ The most appropriate model was a trimodal, normally distributed model with the c
 Once this model was determined to be most appropriate the run counts of each of the years were examined in order to determine if the model could be useful. For 8 of the 11 years between 2006 and 2017 early run counts using run timing alone were within 10% of the counts using genetic information. The three best years included 2010, 2013, and 2014, where early run counts using run timing information alone differed by no more than 3% of the counts using additional genetic information. (Shown below) 
 
 
-```{r three_best}
+```{r three_best, fig.width = 6, fig.height = 4}
 auto_year(weir_data, 2010)
 year_stats(weir_data, 2010)
 auto_year(weir_data, 2013)
@@ -86,10 +87,11 @@ year_stats(weir_data, 2014)
 
 ```
 
+\pagebreak 
 The three years that run timing distributions were off by more than 10% included 2008, which overestimated the early run by 27%, 2012 which overestimated by 67% and 2015 which underestimated by 25% and 2012.
 
 
-```{r three_worst}
+```{r three_worst, fig.width = 6, fig.height = 4}
 auto_year(weir_data, 2008)
 year_stats(weir_data, 2008)
 auto_year(weir_data, 2012)
@@ -98,10 +100,13 @@ auto_year(weir_data, 2015)
 year_stats(weir_data, 2015)
 
 ```
+\pagebreak
 
 It was suggested by Heather Finkle that using catch information from farther flung management districts might reduce the ability to accurate model run timing since those districts would contain harvest from non-Chignik stocks. The analysis was reexamined this time using only harvests that were within a two day fish travel time from Chignik weir. This change improved the model significantly for 2012. The run timing only model previously over estimated thegenetics model by 67% after the management area correction this dropped to a 5% over estimate. The 2008 and 2015 estimates were similar to those found under the original model with a 23% overestimate and 25% underestimate respectively.
 
-```{r even_better}
+\pagebreak
+
+```{r even_better, fig.width = 6, fig.height = 4}
 auto_year(chig_data, 2012)
 year_stats(chig_data, 2012)
 ```
@@ -121,14 +126,19 @@ Using Single-Nucleotide Polymorphisms, Transactions of the American Fisheries So
 
 Link to this article: http://dx.doi.org/10.1080/00028487.2011.584494
 
-# R Session Info
+\pagebreak
 
+# R Session Info
+```{r session_info}
 sessionInfo()
+```
+
+\pagebreak
 
 # Appendix A
 Below are the graphs for all the years using model with the more conservative data set:
 
-```{r all_year_graphs}
+```{r all_year_graphs, fig.width = 6, fig.height = 4}
 auto_year(chig_data, 2006)
 year_stats(chig_data, 2006)
 auto_year(chig_data, 2007)
