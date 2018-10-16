@@ -138,8 +138,35 @@ percent_dist(fit, 178) #date when fifty percent is early run. According to distr
 pnormfit(fit, 178)
 
 
+# Delay/Lag from Witteveen and Botz 2007
 
+#Location		                Delay 		Stat Area		              Time Period	
 
+#SEDM		                     5	6	  28115-28190		              65% June, 55% July, 50% Aug., 35% Sept. 	
+#SEDM		                     5	6	  28115-28130, 28170-28190		65% June, 55% July, 50% Aug., 35% Sept. 
+#Perryville District		     3	4	  27540-27560		              50% June, 60% July, 50% Aug., 35% Sept.
+#Western District		         2	3	  27330-27394		              50% June, 60% July, 50% Aug., 35% Sept.
+#Outer Chignik Bay/Kujulik	 1	2	  27220-27250		              90% June, 95% rest of Season	
+#Cape Kumlik		             2	3	  27262-27264		              90% June, 95% rest of Season
+#Chignik Bay District        0	1	  27110		                    100% All Season	
+#Weir Count		              -1	0				                        100% All Season
+#Eastern District		         3	4   27260, 27270-27296		      75% June, 20% July - September	
+#Cape Igvak		               5	6	  26275-26295		              75% June, 20% July - September
+
+# %ages to approximated from GSI
+#
+#1. Chignik managment harvest (yellow in the spreadsheet)
+#2. 90% of Igvak harvest (through 7/25)
+#3. and 80% of SEDM harvest through 7/25 (excludes NWSS 7/1-7/25)
+
+#outline
+# For each year 2006 - 2008 
+#Start by getting weir data.
+#For each fishing district starting with closest districts and working further away:
+#   Add % of harvest to weir and previously added districts.
+#   Estimate early run
+#   See how well early run estimation matches up with genetics. 
+#If addtional harvest makes early run estimation less similar - add on next district - if it still makes early run estiation less similar to genetics estimation then don't add any more areas. 
 
 
 
