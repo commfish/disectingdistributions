@@ -293,7 +293,7 @@ pnormfit <- function(fit, x, dist_num =1){
   fit$parameters$pi[dist_num]*pnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
 }
 
-weir_date <- function(df){
+weir_date <- function(area, harvest_date){
   # Delay/Lag from Witteveen and Botz 2007
   
   #Location		                Delay 		Stat Area		              Time Period	
@@ -309,17 +309,17 @@ weir_date <- function(df){
   #Cape Igvak		               5	6	  26275-26295		              75% June, 20% July - September
   weir_arrival_date <-
     case_when(
-      df$area == "Unimak" ~ df$harvest_date + 12,
-      df$area == "Ikatan" ~ df$harvest_date + 11,
-      df$area == "Doloi" ~ df$harvest_date + 9,
-      df$area == "Shumagins" ~ df$harvest_date + 7, #This line & above a guestimate based on other values and distances.
-      df$area == "SEDM" ~ df$harvest_date + 6,
-      df$area == "Perryville" ~ df$harvest_date + 4,
-      df$area == "Western" ~ df$harvest_date + 3,
-      df$area == "Chignik" ~ df$harvest_date + 1,
-      df$area == "Central" ~ df$harvest_date + 2,
-      df$area == "Eastern" ~ df$harvest_date + 4,
-      df$area == "Igvak" ~ df$harvest_date + 6
+      area == "Unimak" ~ harvest_date + 12,
+      area == "Ikatan" ~ harvest_date + 11,
+      area == "Dolgoi" ~ harvest_date + 9,
+      area == "Shumagins" ~ harvest_date + 7, #This line & above a guestimate based on other values and distances.
+      area == "SEDM" ~ harvest_date + 6,
+      area == "Perryville" ~ harvest_date + 4,
+      area == "Western" ~ harvest_date + 3,
+      area == "Chignik" ~ harvest_date + 1,
+      area == "Central" ~ harvest_date + 2,
+      area == "Eastern" ~ harvest_date + 4,
+      area == "Igvak" ~ harvest_date + 6
     )
 }
 #unique(harvest_data$area)

@@ -34,9 +34,14 @@ read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          day_of_year = lubridate::yday(date_weir)) -> chig_data # convert the Date to its numeric equivalent
 
 harvest_data <- read_csv('../data/harvest19692017.csv') %>% 
+  filter(year %in% c(2006:2008)) %>%
   mutate(date_harvest = mdy(date_begin),
          day_of_year_harvest = yday(date_harvest),
-         weir_arrival = weir_date(date_harvest) ) -> harvest_data # convert the Date to its numeric equivalent
+         weir_arrival = weir_date(area, date_harvest) 
+         )# -> harvest_data # convert the Date to its numeric equivalent
+glimpse(harvest_data)
+
+aggregate( fish_count ~ weir_arrival, data=harvest_data, FUN=sum)
 
 year_vector <- c(2006:2008,2010:2017)
 ```
