@@ -18,7 +18,7 @@ source('distribution_functions.R')
 library(lubridate)
 
 # data ----
-chig_data <- read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
+read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
   dplyr::rename(#date = Date,
          prop_early_genetics = Propotionearly, 
@@ -31,24 +31,21 @@ chig_data <- read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>
          #run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          #run_early_gen = prop_early_genetics*run,
          date_weir = lubridate::mdy(Date),
-         day_of_year = lubridate::yday(date))# -> chig_data # convert the Date to its numeric equivalent
+         day_of_year = lubridate::yday(date_weir)) -> chig_data # convert the Date to its numeric equivalent
 
-read_csv('../data/harvest19692017.csv') %>% 
-  mutate(esc = early_esc_genetics + late_esc_genetics,
-         #catch = early_catch_genetics + late_catch_genetics,
-         #run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
-         #run_early_gen = prop_early_genetics*run,
-         date_harvest = mdy(date_begin_harvest),
-         day_of_year_harvest = yday(date)) -> harvest_data # convert the Date to its numeric equivalent
+harvest_data <- read_csv('../data/harvest19692017.csv') %>% 
+  mutate(date_harvest = mdy(date_begin),
+         day_of_year_harvest = yday(date_harvest),
+         weir_arrival = weir_date(date_harvest) ) -> harvest_data # convert the Date to its numeric equivalent
 
 year_vector <- c(2006:2008,2010:2017)
 ```
 
 # Background
 
-For over a decade genetic samples of sockeye (*Oncorhynchus nerka*) have been collected at the Chignik weir to distinguish the early run, which mostly spawns in Black Lake from later runs. The majority of these later runs spawn in Chignik Lake. Currently these stocks are managed separately. The processing of genetics samples is expensive, and therefore alternative methods for distinguishing between the stocks are being examined. In the years prior to genetic assignment July 4th was used as a cut off date between the early and late runs with the understanding that some early run fish arrive later and some later run fish arrive earlier.
 
-This analysis examines run timing distributions to determine how well early run stocks can be discerned from later stocks on run timing alone. The results will be compared to the run timing distributions that are determined with the additional aid of genetics to examine the viability of this method.
+
+This analysis examines run timing distributions and how well they can distinguish early run stocks from later stocks on run timing using various ways of counting harvest. The results will be compared to the run timing distributions that are determined with the additional aid of genetics to examine how appropriate it is to use certain harvests.
 
 Currently the run consists of the escapement as captured by the weir, and catches from various management districts, some of which are distant from Chignik river.  
 

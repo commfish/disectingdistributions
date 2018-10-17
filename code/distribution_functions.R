@@ -293,6 +293,37 @@ pnormfit <- function(fit, x, dist_num =1){
   fit$parameters$pi[dist_num]*pnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
 }
 
+weir_date <- function(df){
+  # Delay/Lag from Witteveen and Botz 2007
+  
+  #Location		                Delay 		Stat Area		              Time Period	
+  #SEDM		                     5	6	  28115-28190		              65% June, 55% July, 50% Aug., 35% Sept. 	
+  #SEDM		                     5	6	  28115-28130, 28170-28190		65% June, 55% July, 50% Aug., 35% Sept. 
+  #Perryville District		     3	4	  27540-27560		              50% June, 60% July, 50% Aug., 35% Sept.
+  #Western District		         2	3	  27330-27394		              50% June, 60% July, 50% Aug., 35% Sept.
+  #Outer Chignik Bay/Kujulik	 1	2	  27220-27250		              90% June, 95% rest of Season	
+  #Cape Kumlik		             2	3	  27262-27264		              90% June, 95% rest of Season
+  #Chignik Bay District        0	1	  27110		                    100% All Season	
+  #Weir Count		              -1	0				                        100% All Season
+  #Eastern District		         3	4   27260, 27270-27296		      75% June, 20% July - September	
+  #Cape Igvak		               5	6	  26275-26295		              75% June, 20% July - September
+  weir_arrival_date <-
+    case_when(
+      df$area == "Unimak" ~ df$harvest_date + 12,
+      df$area == "Ikatan" ~ df$harvest_date + 11,
+      df$area == "Doloi" ~ df$harvest_date + 9,
+      df$area == "Shumagins" ~ df$harvest_date + 7, #This line & above a guestimate based on other values and distances.
+      df$area == "SEDM" ~ df$harvest_date + 6,
+      df$area == "Perryville" ~ df$harvest_date + 4,
+      df$area == "Western" ~ df$harvest_date + 3,
+      df$area == "Chignik" ~ df$harvest_date + 1,
+      df$area == "Central" ~ df$harvest_date + 2,
+      df$area == "Eastern" ~ df$harvest_date + 4,
+      df$area == "Igvak" ~ df$harvest_date + 6
+    )
+}
+#unique(harvest_data$area)
+
 #This function still needs work. 
 tails_difference <- function(fit, x, dist_a =1, dist_b =2){
   difference <- abs(pnormfit(fit, x, 1) + 1 - pnormfit(fit, x, 2))
