@@ -37,11 +37,17 @@ harvest_data <- read_csv('../data/harvest19692017.csv') %>%
   filter(year %in% c(2006:2008)) %>%
   mutate(date_harvest = mdy(date_begin),
          day_of_year_harvest = yday(date_harvest),
-         weir_arrival = weir_date(area, date_harvest) 
-         )# -> harvest_data # convert the Date to its numeric equivalent
-glimpse(harvest_data)
+         weir_arrival = weir_date(area, date_harvest), 
+         allocation_percent = allocation(area, date_harvest)
+         )
 
-aggregate( fish_count ~ weir_arrival, data=harvest_data, FUN=sum)
+head(harvest_data)
+
+catch <-aggregate( fish_count ~ weir_arrival + area, data=harvest_data, FUN=sum)
+area <- unique(catch$area)
+area <- c("Central", "Chignik", "Dolgoi", "Eastern", "Igvak", "Ikatan", "Perryville", "SEDM", "Shumagins" )
+allocation <- c()
+as_data_frame()
 
 year_vector <- c(2006:2008,2010:2017)
 ```

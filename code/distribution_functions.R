@@ -323,7 +323,83 @@ weir_date <- function(area, harvest_date){
     )
 }
 #unique(harvest_data$area)
-
+allocation <- function(area, harvest_date){
+  # Delay/Lag from Witteveen and Botz 2007
+  
+  #Location		                Delay 		Stat Area		              Time Period	
+  #SEDM		                     5	6	  28115-28190		              65% June, 55% July, 50% Aug., 35% Sept. 	
+  #SEDM		                     5	6	  28115-28130, 28170-28190		65% June, 55% July, 50% Aug., 35% Sept. 
+  #Perryville District		     3	4	  27540-27560		              50% June, 60% July, 50% Aug., 35% Sept.
+  #Western District		         2	3	  27330-27394		              50% June, 60% July, 50% Aug., 35% Sept.
+  #Outer Chignik Bay/Kujulik	 1	2	  27220-27250		              90% June, 95% rest of Season	
+  #Cape Kumlik		             2	3	  27262-27264		              90% June, 95% rest of Season
+  #Chignik Bay District        0	1	  27110		                    100% All Season	
+  #Weir Count		              -1	0				                        100% All Season
+  #Eastern District		         3	4   27260, 27270-27296		      75% June, 20% July - September	
+  #Cape Igvak		               5	6	  26275-26295		              75% June, 20% July - September
+  if(month(harvest_date) < 7){
+    percent_allocated <-
+      case_when(
+        area == "Unimak" ~ 0,
+        area == "Ikatan" ~ 0,
+        area == "Dolgoi" ~ .05,
+        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "SEDM" ~ .65,
+        area == "Perryville" ~ .50,
+        area == "Western" ~ .50,
+        area == "Chignik" ~ 1,
+        area == "Central" ~ .90,
+        area == "Eastern" ~ .75,
+        area == "Igvak" ~ .75
+      )
+  }else if(month(harvest_date) == 7){
+    percent_allocated <-
+      case_when(
+        area == "Unimak" ~ 0,
+        area == "Ikatan" ~ 0,
+        area == "Dolgoi" ~ .05,
+        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "SEDM" ~ .55,
+        area == "Perryville" ~ .60,
+        area == "Western" ~ .60,
+        area == "Chignik" ~ 1,
+        area == "Central" ~ .95,
+        area == "Eastern" ~ .20,
+        area == "Igvak" ~ .20
+      )
+  }else if(month(harvest_date) == 8){
+    percent_allocated <-
+      case_when(
+        area == "Unimak" ~ 0,
+        area == "Ikatan" ~ 0,
+        area == "Dolgoi" ~ .05,
+        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "SEDM" ~ .50,
+        area == "Perryville" ~ .50,
+        area == "Western" ~ .50,
+        area == "Chignik" ~ 1,
+        area == "Central" ~ .95,
+        area == "Eastern" ~ .20,
+        area == "Igvak" ~ .20
+      )
+  }else if(month(harvest_date) > 8){
+    percent_allocated <-
+      case_when(
+        area == "Unimak" ~ 0,
+        area == "Ikatan" ~ 0,
+        area == "Dolgoi" ~ .05,
+        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "SEDM" ~ .35,
+        area == "Perryville" ~ .35,
+        area == "Western" ~ .35,
+        area == "Chignik" ~ 1,
+        area == "Central" ~ .95,
+        area == "Eastern" ~ .20,
+        area == "Igvak" ~ .20
+      )
+  }
+  return(percent_allocated)
+}
 #This function still needs work. 
 tails_difference <- function(fit, x, dist_a =1, dist_b =2){
   difference <- abs(pnormfit(fit, x, 1) + 1 - pnormfit(fit, x, 2))
