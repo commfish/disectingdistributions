@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 # Recipient
-Heather Finkle.
+Kevin shaberg, Heather Finkle, Birch Foster
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -15,31 +15,45 @@ mfrow=c(1, 2)
 ```{r data entry}
 # load ----
 source('distribution_functions.R')
-library(lubridate)
+#library(lubridate)
 
 # data ----
-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
-  dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
+chig_data <-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
+  dplyr::select( Date, Propotionearly, Earlyesc, Lateesc) %>%
   dplyr::rename(#date = Date,
          prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc,
-         chignik = Chignik_Hook_Kujulik) %>%
+         ) %>%
   mutate(esc = early_esc_genetics + late_esc_genetics,
          #catch = early_catch_genetics + late_catch_genetics,
          #catch_chignik = Lagoon + chignik,
          #run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          #run_early_gen = prop_early_genetics*run,
          date_weir = lubridate::mdy(Date),
-         day_of_year = lubridate::yday(date_weir)) -> chig_data # convert the Date to its numeric equivalent
+         day_of_year_weir = lubridate::yday(date_weir))%>% # convert the Date to its numeric equivalent
+         filter(year(date_weir) %in% c(2006:2008))
 
 harvest_data <- read_csv('../data/harvest19692017.csv') %>% 
   filter(year %in% c(2006:2008)) %>%
   mutate(date_harvest = mdy(date_begin),
          day_of_year_harvest = yday(date_harvest),
-         weir_arrival = weir_date(area, date_harvest), 
-         allocation_percent = allocation(area, date_harvest)
+         date_weir = weir_date(area, date_harvest), 
+         allocation_percent = allocation(area, date_harvest),
+         chig_catch = fish_count*allocation_percent
          )
+harv <- harvest_data %>% 
+  dplyr::select(date_weir, area, chig_catch) %>% 
+  tidyr::spread(area, chig_catch) %>% 
+  mutate(catch = rowSums(Central, Chignik, Dolgoi, Eastern, Igvak, Ikatan, Perryville, SEDM, Shumagins, Unimak, Western, na.rm = TRUE))
+
+#Some harvest would have arrived at the weir after the weir is removed
+something <-anti_join(harv, chig_data, by ="date_weir")
+
+all <- full_join(chig_data, harv, by = "date_weir") %>%
+  mutate(run = rowSums(.[esc, catch] na.rm = TRUE))
+
+  
 
 head(harvest_data)
 
