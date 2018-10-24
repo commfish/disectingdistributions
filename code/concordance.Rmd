@@ -23,12 +23,9 @@ chig_data <-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
   dplyr::rename(#date = Date,
          prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
-         late_esc_genetics = Lateesc,
+         late_esc_genetics = Lateesc
          ) %>%
   mutate(esc = early_esc_genetics + late_esc_genetics,
-         #catch = early_catch_genetics + late_catch_genetics,
-         #catch_chignik = Lagoon + chignik,
-         #run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          #run_early_gen = prop_early_genetics*run,
          date_weir = lubridate::mdy(Date),
          day_of_year_weir = lubridate::yday(date_weir))%>% # convert the Date to its numeric equivalent
@@ -42,26 +39,36 @@ harvest_data <- read_csv('../data/harvest19692017.csv') %>%
          allocation_percent = allocation(area, date_harvest),
          chig_catch = fish_count*allocation_percent
          )
+
 harv <- harvest_data %>% 
   dplyr::select(date_weir, area, chig_catch) %>% 
-  tidyr::spread(area, chig_catch) %>% 
-  mutate(catch = rowSums(Central, Chignik, Dolgoi, Eastern, Igvak, Ikatan, Perryville, SEDM, Shumagins, Unimak, Western, na.rm = TRUE))
+  tidyr::spread(area, chig_catch)
+
+catch <-aggregate( chig_catch ~ date_weir, data=harvest_data, FUN=sum)
+
+harv <- harv %>% 
+  full_join(catch, by = "date_weir") #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
+
+harv$chig_catch%>% 
+  replace_na(0)
+
+sum(is.na(catch))
 
 #Some harvest would have arrived at the weir after the weir is removed
 something <-anti_join(harv, chig_data, by ="date_weir")
 
-all <- full_join(chig_data, harv, by = "date_weir") %>%
-  mutate(run = rowSums(.[esc, catch] na.rm = TRUE))
+all <- full_join(chig_data, harv, by = "date_weir")
 
-  
+all$chig_catch <- all$chig_catch%>% 
+  replace_na(0)
 
-head(harvest_data)
+all$esc <- all$esc%>% 
+  replace_na(0)
 
-catch <-aggregate( fish_count ~ weir_arrival + area, data=harvest_data, FUN=sum)
-area <- unique(catch$area)
-area <- c("Central", "Chignik", "Dolgoi", "Eastern", "Igvak", "Ikatan", "Perryville", "SEDM", "Shumagins" )
-allocation <- c()
-as_data_frame()
+all <- all%>%
+ #mutate(run = rowSums(c("esc", "chig_catch"), na.rm = TRUE))
+ mutate(run = chig_catch + esc)
+
 
 year_vector <- c(2006:2008,2010:2017)
 ```
