@@ -111,7 +111,6 @@ year_stats <- function (df, year_wanted){
     ggtitle(paste0(year_wanted, " Early Run Estimation"))
 }
 
-
 graph_year <- function(df){
   #Graph daily weir run = escapement + catch for a year ----
   ggplot(df, aes(day_of_year, run_early)) + 
@@ -131,7 +130,6 @@ early_look <- function(df, year_wanted){
   fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
   dist_plot(fit, year_wanted)
 }
-
 
 distribution_estimation_norms <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
@@ -342,8 +340,8 @@ allocation <- function(area, harvest_date){
       case_when(
         area == "Unimak" ~ 0,
         area == "Ikatan" ~ 0,
-        area == "Dolgoi" ~ .05,
-        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "Dolgoi" ~ .0,
+        area == "Shumagins" ~ .0, #This line & above a guestimate based on other values and distances.
         area == "SEDM" ~ .65,
         area == "Perryville" ~ .50,
         area == "Western" ~ .50,
@@ -357,8 +355,8 @@ allocation <- function(area, harvest_date){
       case_when(
         area == "Unimak" ~ 0,
         area == "Ikatan" ~ 0,
-        area == "Dolgoi" ~ .05,
-        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "Dolgoi" ~ .0,
+        area == "Shumagins" ~ .0, #This line & above a guestimate based on other values and distances.
         area == "SEDM" ~ .55,
         area == "Perryville" ~ .60,
         area == "Western" ~ .60,
@@ -372,8 +370,8 @@ allocation <- function(area, harvest_date){
       case_when(
         area == "Unimak" ~ 0,
         area == "Ikatan" ~ 0,
-        area == "Dolgoi" ~ .05,
-        area == "Shumagins" ~ .05, #This line & above a guestimate based on other values and distances.
+        area == "Dolgoi" ~ .00,
+        area == "Shumagins" ~ .00, #This line & above a guestimate based on other values and distances.
         area == "SEDM" ~ .50,
         area == "Perryville" ~ .50,
         area == "Western" ~ .50,

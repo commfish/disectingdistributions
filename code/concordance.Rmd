@@ -20,19 +20,20 @@ source('distribution_functions.R')
 # data ----
 chig_data <-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select( Date, Propotionearly, Earlyesc, Lateesc) %>%
-  dplyr::rename(#date = Date,
+  dplyr::rename(
+         date = Date,
          prop_early_genetics = Propotionearly, 
          early_esc_genetics = Earlyesc, 
          late_esc_genetics = Lateesc
          ) %>%
   mutate(esc = early_esc_genetics + late_esc_genetics,
-         #run_early_gen = prop_early_genetics*run,
-         date_weir = lubridate::mdy(Date),
-         day_of_year_weir = lubridate::yday(date_weir))%>% # convert the Date to its numeric equivalent
-         filter(year(date_weir) %in% c(2006:2008))
+         date_weir = lubridate::mdy(date),
+         date = date_weir,
+         day_of_year = lubridate::yday(date_weir))%>% # convert the Date to its numeric equivalent
+         filter(year(date_weir) %in% c(2006:2016))
 
 harvest_data <- read_csv('../data/harvest19692017.csv') %>% 
-  filter(year %in% c(2006:2008)) %>%
+  filter(year %in% c(2006:2016)) %>%
   mutate(date_harvest = mdy(date_begin),
          day_of_year_harvest = yday(date_harvest),
          date_weir = weir_date(area, date_harvest), 
@@ -59,15 +60,15 @@ something <-anti_join(harv, chig_data, by ="date_weir")
 
 all <- full_join(chig_data, harv, by = "date_weir")
 
-all$chig_catch <- all$chig_catch%>% 
+all$chig_catch <- all$chig_catch %>% 
   replace_na(0)
 
-all$esc <- all$esc%>% 
+all$esc <- all$esc %>% 
   replace_na(0)
 
 all <- all%>%
- #mutate(run = rowSums(c("esc", "chig_catch"), na.rm = TRUE))
- mutate(run = chig_catch + esc)
+ mutate(run = chig_catch + esc,
+        run_early_gen = prop_early_genetics*run)
 
 
 year_vector <- c(2006:2008,2010:2017)
@@ -128,6 +129,34 @@ It was suggested by Heather Finkle that using catch information from farther flu
 ```{r even_better, fig.width = 6, fig.height = 4}
 auto_year(chig_data, 2012)
 year_stats(chig_data, 2012)
+```
+
+# Further refinement
+
+Currently examining various harvest allocation designs to determine which is more appropriate. 
+```{r harvest_allocation_1, fig.width = 6, fig.height = 4}
+auto_year(all, 2006)
+year_stats(all, 2006)
+auto_year(all, 2007)
+year_stats(all, 2007)
+auto_year(all, 2008)
+year_stats(all, 2008)
+auto_year(all, 2010)
+year_stats(all, 2010)
+auto_year(all, 2011)
+year_stats(all, 2011)
+auto_year(all, 2012)
+year_stats(all, 2012)
+auto_year(all, 2014)
+year_stats(all, 2014)
+auto_year(all, 2015)
+year_stats(all, 2015)
+auto_year(all, 2016)
+year_stats(all, 2016)
+auto_year(all, 2017)
+year_stats(all, 2017)
+
+
 ```
 
 # Results
