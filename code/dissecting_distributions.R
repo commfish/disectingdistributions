@@ -79,6 +79,7 @@ for(i in year_vector ){
   auto_year(chig_data, i)
 }
 auto_year(weir_data, 2006)
+
 auto_year(weir_data, 2007)
 auto_year(chig_data, 2008)
 auto_year(weir_data, 2010)
@@ -169,5 +170,51 @@ pnormfit(fit, 178)
 #If addtional harvest makes early run estimation less similar - add on next district - if it still makes early run estiation less similar to genetics estimation then don't add any more areas. 
 
 
+#Trying to plot dist_plot(fitpro, year_wanted ) as a ggplot instead of a base plot:
+
+#auto_year<- function (df, year_wanted) {
+  df <- chig_data 
+  year_wanted <- 2006
+  df_year <- data_prep(df, year_wanted) 
+  #graph_year(df_year)
+  #fitpro <- distribution_estimation_norms(df_year) 
+  #dist_plot(fitpro, year_wanted )
+  #fitpro <- distribution_estimation_norms_MFX(df_year) 
+  #dist_plot(fitpro, year_wanted ) 
+  fitpro <- distribution_estimation_norms_SEQ(df_year) 
+  dist_plot(fitpro, year_wanted )
+#}
+
+fitpro$vmat
+fitpro$mixdata
+fitpro$se
+fitpro$parameters
+fitpro$parameters$mu[1]
+minx <- min(fitpro$mixdata$day_of_year)
+maxx <- max(fitpro$mixdata$day_of_year)
+ggplot(data = fitpro$mixdata, aes(fitpro$mixdata$day_of_year))+
+  #geom_bar(aes(y = fitpro$mixdata$run))+
+  #need to incorporate fitpro$pi which is the percenatge of the whole that distribution represents.
+  stat_function(fun =dnorm, n = 101, args = list(mean = fitpro$parameters$mu[1], sd = fitpro$parameters$sigma[1]), col = "green") +
+  stat_function(fun =dnorm, n = 101, args = list(mean = fitpro$parameters$mu[2], sd = fitpro$parameters$sigma[2]), col = "green") +
+  stat_function(fun =dnorm, n = 101, args = list(mean = fitpro$parameters$mu[3], sd = fitpro$parameters$sigma[3]), col = "green") +
+  ylab("")+
+  scale_y_continuous(breaks = NULL)
+
+
+#possilbe healp here:
+#https://stackoverflow.com/questions/5688082/overlay-histogram-with-density-curve
+# create some data to work with
+x = rnorm(1000);
+
+# overlay histogram, empirical density and normal density
+p0 = qplot(x, geom = 'blank') +   
+  geom_line(aes(y = ..density.., colour = 'Empirical'), stat = 'density') +  
+  stat_function(fun = dnorm, aes(colour = 'Normal')) +                       
+  geom_histogram(aes(y = ..density..), alpha = 0.4) +                        
+  scale_color_manual(name = 'Density', values = c('red', 'blue')) + 
+  theme(legend.position = c(0.85, 0.85))
+
+print(p0)
 
 

@@ -41,6 +41,8 @@ harvest_data <- read_csv('../data/harvest19692017.csv') %>%
          chig_catch = fish_count*allocation_percent
          )
 
+with(harvest_data, table(year, month(date_harvest), area, )
+
 harv <- harvest_data %>% 
   dplyr::select(date_weir, area, chig_catch) %>% 
   tidyr::spread(area, chig_catch)
@@ -155,6 +157,8 @@ auto_year(all, 2016)
 year_stats(all, 2016)
 auto_year(all, 2017)
 year_stats(all, 2017)
+
+
 
 
 ```
