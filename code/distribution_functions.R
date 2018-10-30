@@ -30,7 +30,7 @@ theme_sleek <- function(base_size = 12, base_family = "Times") {
     )
 }
 
-theme_set(theme_sleek())
+#theme_set(theme_sleek())
 
 # functions ----
 data_prep <- function(df, year_wanted){
@@ -51,8 +51,8 @@ data_prep_early <- function(df, year_wanted){
 }
 
 year_stats <- function (df, year_wanted){
-  #df <- chig_data
-  #year_wanted = 2006
+  #df <- all
+  #year_wanted <- 2006
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -166,7 +166,7 @@ distribution_estimation_norms_MES <- function(df, num_of_distributions = 3, mean
 }
 
 distribution_estimation_norms_SEQ <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
-  
+  #df<-df_fit 
   if(missing(mean_guess_given)) {
     mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
   } else {
