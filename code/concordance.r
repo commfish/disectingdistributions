@@ -4,20 +4,16 @@
 # 10/29/2018
 
 # load ----
-library(tidyverse)
-library(mixdist)
-library(data.table)
-library(lubridate)
 library(here)
 
 # data ----
 # load ----
-source('distribution_functions.R')
+source('code/distribution_functions.R')
 #library(lubridate)
 getwd()
 
 # data ----
-chig_data <-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
+chig_data <-read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select( Date, Propotionearly, Earlyesc, Lateesc) %>%
   dplyr::rename(
     date = Date,
@@ -31,7 +27,7 @@ chig_data <-read_csv('../data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          day_of_year = lubridate::yday(date_weir))%>% # convert the Date to its numeric equivalent
   filter(year(date_weir) %in% c(2006:2016))
 
-harvest_data <- read_csv('../data/harvest19692017.csv') %>% 
+harvest_data <- read_csv('data/harvest19692017.csv') %>% 
   filter(year %in% c(2006:2016)) %>%
   mutate(date_harvest = mdy(date_begin),
          day_of_year_harvest = yday(date_harvest),
@@ -100,18 +96,41 @@ all <- all%>%
   mutate(run = chig_catch + esc,
          run_early_gen = prop_early_genetics*run)
 
+p6 <- year_stats(all, 2006)
+p7 <- year_stats(all, 2007)
+p8 <- year_stats(all, 2008)
+p10 <- year_stats(all, 2010)
+p11 <- year_stats(all, 2011)
+p12 <- year_stats(all, 2012)
+p13 <- year_stats(all, 2013)
+p14 <- year_stats(all, 2014)
+p15 <- year_stats(all, 2015)
+p16 <- year_stats(all, 2016)
 
-
-year_stats(all, 2006)
-year_stats(all, 2007)
-year_stats(all, 2008)
-
-year_stats(all, 2010)
-year_stats(all, 2011)
-year_stats(all, 2012)
-year_stats(all, 2013)
-year_stats(all, 2014)
-year_stats(all, 2015)
-year_stats(all, 2016)
+grid.arrange(p6, p7, p8, p10, p11, p12, nrow = 3)
+grid.arrange(p11, p12, p13, p14, p15, p16, nrow = 3)
 
 year_vector <- c(2006:2008,2010:2017)
+
+par(mfrow = c(3,2))
+auto_year(all, 2006)
+auto_year(all, 2007)
+auto_year(all, 2008)
+auto_year(all, 2010)
+auto_year(all, 2011)
+auto_year(all, 2012)
+auto_year(all, 2014)
+auto_year(all, 2015)
+auto_year(all, 2016)
+auto_year(all, 2017)
+
+auto_year(all, 2008)
+auto_year(all, 2012)
+auto_year(all, 2014)
+auto_year(all, 2015)
+
+all %>% select()
+
+bar <- ggplot(all, aes(x = date, y =)) +
+  geom_bar(aes(fill = run), position = position_stack())
+
