@@ -4,6 +4,8 @@
 # 8/13/2018
 
 # load ----
+library(fpp2)
+library(RDS)
 library(tidyverse)
 library(mixdist)
 library(lubridate)
@@ -11,6 +13,7 @@ library(zoo) # to convert numeric date back to a number
 source('code/distribution_functions.R')
 
 # data ----
+# Chig_data only uses Chignik Bay District harvest
 chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
   dplyr::rename(#date = Date,
@@ -28,8 +31,10 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
+         year = year(date),
          day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
 
+# weir_data uses harvest data from farther flung areas
 weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
   dplyr::select(-X9) %>%
   dplyr::rename(prop_early_genetics = Propotionearly, 
@@ -44,17 +49,13 @@ weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>%
          run = esc + catch, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
+         year = year(date),
          day_of_year = yday(date)) # %>% # convert the Date to its numeric equivalent
-
-class(weir_data)
-class(chig_data)
-weir_data <- as.data.frame(weir_data)
-
 
 year_vector <- c(2006:2008,2010:2017)
 
 early_look(weir_data, 2006) 
-early_look(chig_data, 2007) 
+early_look(weir_data, 2007) 
 early_look(weir_data, 2008) 
 early_look(weir_data, 2010) 
 early_look(weir_data, 2011) 
@@ -78,16 +79,29 @@ for(i in year_vector ){
 for(i in year_vector ){
   auto_year(chig_data, i)
 }
+df_year <- data_prep(weir_data, 2015) 
+run <- as.ts(df_year$run)
+autoplot(run, ts.geom = 'bar', fill = 'grey') +
+  ggtitle("runtiming") +
+  ylab('sockeye') +
+  ylim(0, 200000)
+
+ggplot(weir_data, aes(day_of_year, run)) + geom_line() + 
+  ylim(0, 200000) +
+  facet_wrap(~year)
+
+max(weir_data$run)
+
 auto_year(weir_data, 2006)
 
 auto_year(weir_data, 2007)
-auto_year(chig_data, 2008)
+auto_year(weir_data, 2008)
 auto_year(weir_data, 2010)
 auto_year(weir_data, 2011)
-auto_year(chig_data, 2012)
+auto_year(weir_data, 2012)
 auto_year(weir_data, 2013)
 auto_year(weir_data, 2014)
-auto_year(chig_data, 2015)
+auto_year(weir_data, 2015)
 auto_year(weir_data, 2016)
 auto_year(weir_data, 2017)
 
@@ -101,6 +115,19 @@ for(i in year_vector){
   year_stats(chig_data, i)
 }
 
+year_stats(weir_data, 2006)
+year_stats(weir_data, 2007)
+year_stats(weir_data, 2008)
+year_stats(weir_data, 2010)
+year_stats(weir_data, 2011)
+year_stats(weir_data, 2012)
+year_stats(weir_data, 2013)
+year_stats(weir_data, 2014)
+year_stats(weir_data, 2015)
+year_stats(weir_data, 2016)
+year_stats(weir_data, 2017)
+
+auto_year(chig_data, 2012)
 
 year_stats(chig_data, 2006)
 year_stats(chig_data, 2007)
@@ -202,7 +229,7 @@ ggplot(data = fitpro$mixdata, aes(fitpro$mixdata$day_of_year))+
   scale_y_continuous(breaks = NULL)
 
 
-#possilbe healp here:
+#possilbe help here:
 #https://stackoverflow.com/questions/5688082/overlay-histogram-with-density-curve
 # create some data to work with
 x = rnorm(1000);

@@ -9,6 +9,7 @@ library(mixdist)
 library(data.table)
 library(lubridate)
 library(gridExtra)
+citation("mixdist")
 #library(here)
 
 windowsFonts(Times=windowsFont("Times New Roman"))
@@ -37,9 +38,9 @@ theme_sleek <- function(base_size = 12, base_family = "Times") {
 data_prep <- function(df, year_wanted){
   df %>% 
     filter(year(date)==year_wanted) %>%
-  # Create a data frame whose first column are the dates in numeric format
-  # and whose second column are the frequencies. 
-  # This is required for fitting the mixture. See mixdata {mixdist}
+    # Create a data frame whose first column are the dates in numeric format
+    # and whose second column are the frequencies. 
+    # This is required for fitting the mixture. See mixdata {mixdist}
     dplyr::select(day_of_year, run) -> df
 }
 data_prep_early <- function(df, year_wanted){
@@ -64,7 +65,7 @@ year_stats <- function (df, year_wanted){
   #dist_plot (fit, year_wanted)
   df_fit_early <- data_prep_early(df, year_wanted)
   fit_early <- distribution_estimation_norms(df_fit_early)
-
+  
   #print("Mean day-of-year & sd based on runtiming distributions alone")
   #print(c(yday(fit$parameters$mu[1]), fit$parameters$sigma[1]))
   #print("Mean day-of-year & sd based on additional genetics information")
@@ -87,7 +88,7 @@ year_stats <- function (df, year_wanted){
     dplyr::select(day_of_year, dist_percent, prop_early_genetics) %>% 
     melt(id = "day_of_year") -> df2
   ggplot(df2, aes(day_of_year, value, colour = variable))+
-    geom_line()+
+    geom_line(size = 3)+
     scale_colour_manual(name = "Modeled by",
                         labels = c("Distribution only", "Genetics"), 
                         values=c("green", "blue"))+
@@ -100,7 +101,7 @@ year_stats <- function (df, year_wanted){
     melt(id = "day_of_year") -> df3
   #yaxis <- tickr(df3, value, 10000)  
   ggplot(df3, aes(day_of_year, value, colour = variable))+
-    geom_line()+
+    geom_line(size = 3)+
     scale_colour_manual(name = "Modeled by",
                         labels = c("Distribution only", "Genetics"), 
                         values=c("green", "blue"))+
@@ -408,7 +409,7 @@ tails_difference <- function(fit, x, dist_a =1, dist_b =2){
 tails_equal_date <- function(fit, dist_a =1, dist_b =2){
   # find X (date) when pnorm(dist 1) = 1 - pnorm(dist 2) taking into account the proporiton (pi)
   # each distribution is of the whole multinomial distribution
-
+  
   #find x where
   pnormfit(fitpro, 13338, 2) #is about equal to  
   1 - pnormfit(fitpro, 13338+1, 1) 
@@ -441,4 +442,3 @@ tails_equal_date <- function(fit, dist_a =1, dist_b =2){
   
   return(current_x) #(as.Date.numeric(current_x)) # date 
 }
-
