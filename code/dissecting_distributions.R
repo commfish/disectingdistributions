@@ -54,6 +54,12 @@ weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>%
 
 year_vector <- c(2006:2008,2010:2017)
 
+fix_date_est <-weir_data %>%
+  dplyr::select(run, day_of_year, year) %>%
+  dplyr::filter(day_of<year < 186) %>%
+  dplyr::group_by(year) %>%
+  dplyr::summarise(sum_july4 = sum(run))
+
 early_look(weir_data, 2006) 
 early_look(weir_data, 2007) 
 early_look(weir_data, 2008) 
@@ -79,7 +85,8 @@ for(i in year_vector ){
 for(i in year_vector ){
   auto_year(chig_data, i)
 }
-df_year <- data_prep(weir_data, 2015) 
+df_year <- data_prep(weir_data, 2007) 
+
 run <- as.ts(df_year$run)
 autoplot(run, ts.geom = 'bar', fill = 'grey') +
   ggtitle("runtiming") +
@@ -87,8 +94,13 @@ autoplot(run, ts.geom = 'bar', fill = 'grey') +
   ylim(0, 200000)
 
 ggplot(chig_data, aes(day_of_year, run)) + geom_line() + 
-  ylim(0, 200000) +
+  ylim(0, 175000)# +
   facet_wrap(~year)
+
+ggplot(df_year, aes(day_of_year, run)) + geom_line() +
+  ylab("sockeye run per day") +
+  xlab("day of year") +
+  ggtitle("2007 run timing")
 
 max(weir_data$run)
 
@@ -127,7 +139,18 @@ year_stats(weir_data, 2015)
 year_stats(weir_data, 2016)
 year_stats(weir_data, 2017)
 
+
+auto_year(chig_data, 2006)
+auto_year(chig_data, 2007)
+auto_year(chig_data, 2008)
+auto_year(chig_data, 2010)
+auto_year(chig_data, 2011)
 auto_year(chig_data, 2012)
+auto_year(chig_data, 2013)
+auto_year(chig_data, 2014)
+auto_year(chig_data, 2015)
+auto_year(chig_data, 2016)
+auto_year(chig_data, 2017)
 
 year_stats(chig_data, 2006)
 year_stats(chig_data, 2007)

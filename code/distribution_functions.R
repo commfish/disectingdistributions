@@ -9,7 +9,7 @@ library(mixdist)
 library(data.table)
 library(lubridate)
 library(gridExtra)
-citation("mixdist")
+#citation("mixdist")
 #library(here)
 
 windowsFonts(Times=windowsFont("Times New Roman"))
