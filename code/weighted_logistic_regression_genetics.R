@@ -96,3 +96,4 @@ new_data <- data_frame(day_of_year =173)
 
 gives predicted response
 augment(bl2006, newdata= new_data, type.predict = "response")
+augment(bl2006) # creates a df of all fitted values.
