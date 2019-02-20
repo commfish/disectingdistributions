@@ -20,6 +20,8 @@ proportions_data <-read_csv('data/chig_genetics_by_weir_date.csv') %>%
          inv_var = 1/((sd_bayes)^2),
          bl_upr_95ci  = pmin(black_proportion + 1.95*sd_bayes, 1),
          bl_lwr_95ci  = pmax(black_proportion - 1.95*sd_bayes, 0),
+         chig_lwr_95ci = 1- bl_upr_95ci, 
+         chig_upr_95ci = 1- bl_lwr_95ci
          #bl_upr_se = sqrt(bl_upr_est*(1-bl_upr_est)), The BAYES genetics results do not contain the out of sample variance.
          #bl_lwr_se = sqrt(bl_lwr_est*(1-bl_lwr_est)), So you may want these intervals
          #bl_upr_95ci = pmin(bl_upr_est + 1.95*bl_upr_se, 1),
@@ -124,15 +126,19 @@ max_day_of_year <-max(anchor_df$day_of_year)
 #the upper and lower CIS of the logistic regressions made with 
 #the upper and lower CIS from the genetic samples.
 
+#weight = sample size
+#family = quasibinomial
+
 logistic_by_year_ci <- function(df= anchor_df, ayear){
   df <- df %>%
     #df <- anchor_df %>%
-    #filter(year == 2012)
+    #filter(year == 2018)
     filter(year == ayear)
+  #new_df <- data.frame(day_of_year = seq(min(df$day_of_year), max(df$day_of_year)))
   mod <- glm(chig_proportion ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
   mod_upr <- glm(chig_upr_95ci ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
   mod_lwr <- glm(chig_lwr_95ci ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
-  preddata <- with(df, data.frame(day_of_year = seq(min(day_of_year), max(day_of_year), length = 100)))
+  preddata<- with(df, data.frame(day_of_year = seq(min(df$day_of_year), max(df$day_of_year))))
   preds <- predict(mod, newdata = preddata, type = "link", se.fit = TRUE)
   preds_upr <- predict(mod_upr, newdata = preddata, type = "link", se.fit = TRUE)
   preds_lwr <- predict(mod_lwr, newdata = preddata, type = "link", se.fit = TRUE)
@@ -148,17 +154,19 @@ logistic_by_year_ci <- function(df= anchor_df, ayear){
   
   preddata$lwr <- lwr2 
   preddata$upr <- upr2 
-  ggplot(data=df, mapping=aes(x=day_of_year,y=chig_proportion)) + geom_point() +         
-    stat_smooth(method="glm", method.args=list(family= quasibinomial)) + 
-    geom_line(data=preddata, mapping=aes(x=day_of_year, y=upr), col="red") + 
-    geom_line(data=preddata, mapping=aes(x=day_of_year, y=lwr), col="red") 
+  ggplot(data = df, mapping = aes(x = day_of_year,y = chig_proportion)) + geom_point() +         
+    stat_smooth(method="glm", method.args=list(family = quasibinomial)) + 
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = upr), col="red") + 
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = lwr), col="red") +
+    geom_ribbon(data = preddata, mapping=aes(x = day_of_year, ymin = lwr, ymax = upr))
+    theme_bw() 
   #return(preddata)  # returns the predicted data but not the 
 }
 
-logistic_by_year_ci(anchor_df,2012)
+logistic_by_year_ci(anchor_df,2013)
 
 logistic_by_year(anchor_df, 2012)
-logistic_by_year_sample_size(anchor_df, 2012)
+
 
 df <- anchor_df %>%
   select(year, day_of_year, chig_proportion) %>%
