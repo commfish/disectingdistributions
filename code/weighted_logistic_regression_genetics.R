@@ -27,6 +27,8 @@ proportions_data <-read_csv('data/chig_genetics_by_weir_date.csv') %>%
          #bl_upr_95ci = pmin(bl_upr_est + 1.95*bl_upr_se, 1),
          #bl_lwr_95ci = pmax(bl_upr_est - 1.95*bl_upr_se, 0)
   )
+uw_data <-read_csv('data/current_year_curves2018.csv') %>% 
+  mutate(day_of_year = X1 + 140 - 1)
 
 #unique(proportions_data$date_weir)
 
@@ -129,12 +131,11 @@ max_day_of_year <-max(anchor_df$day_of_year)
 #weight = sample size
 #family = quasibinomial
 
-logistic_by_year_ci <- function(df= anchor_df, ayear){
+logistic_by_year_ci <- function(df = anchor_df, ayear){
   df <- df %>%
     #df <- anchor_df %>%
     #filter(year == 2018)
     filter(year == ayear)
-  #new_df <- data.frame(day_of_year = seq(min(df$day_of_year), max(df$day_of_year)))
   mod <- glm(chig_proportion ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
   mod_upr <- glm(chig_upr_95ci ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
   mod_lwr <- glm(chig_lwr_95ci ~ day_of_year, data = df, weight = sample_size, family = quasibinomial)
@@ -151,21 +152,69 @@ logistic_by_year_ci <- function(df= anchor_df, ayear){
   fit2 <- mod$family$linkinv(fit)
   upr2 <- mod_upr$family$linkinv(upr)
   lwr2 <- mod_lwr$family$linkinv(lwr)
-  
+  preddata$fit <- fit2 
   preddata$lwr <- lwr2 
   preddata$upr <- upr2 
-  ggplot(data = df, mapping = aes(x = day_of_year,y = chig_proportion)) + geom_point() +         
-    stat_smooth(method="glm", method.args=list(family = quasibinomial)) + 
-    geom_line(data = preddata, mapping=aes(x = day_of_year, y = upr), col="red") + 
-    geom_line(data = preddata, mapping=aes(x = day_of_year, y = lwr), col="red") +
-    geom_ribbon(data = preddata, mapping=aes(x = day_of_year, ymin = lwr, ymax = upr))
+
+  ggplot(data = preddata, mapping = aes(x = day_of_year,y = fit)) + 
+    geom_point(size =1) +
+    geom_point(data = df, aes(x = day_of_year, y = chig_proportion)) +
+    #stat_smooth(method="glm", method.args=list(family = quasibinomial)) + 
+    geom_ribbon(data = preddata, mapping=aes(x = day_of_year, ymin = lwr, ymax = upr), fill = "green", alpha = 0.3) +
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = upr), col="green") + 
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = lwr), col="green") +
+    xlab("Day of the year") +
+    ylab("Chignik %") +
+    #ggtitle(ayear) + 
     theme_bw() 
   #return(preddata)  # returns the predicted data but not the 
 }
 
-logistic_by_year_ci(anchor_df,2013)
+logistic_by_year_ci(anchor_df,2018)
 
-logistic_by_year(anchor_df, 2012)
+logistic_by_year_ci_uw <- function(df = anchor_df, ayear){
+  df2 <- uw_data %>%
+    select(V6, day_of_year)
+  df <- df %>%
+    #df <- anchor_df %>%
+    #filter(year == 2018)
+    filter(year == ayear)
+  mod <- glm(chig_proportion ~ day_of_year, data = df, weight = inv_var, family = quasibinomial)
+  mod_upr <- glm(chig_upr_95ci ~ day_of_year, data = df, weight = inv_var, family = quasibinomial)
+  mod_lwr <- glm(chig_lwr_95ci ~ day_of_year, data = df, weight = inv_var, family = quasibinomial)
+  preddata<- with(df, data.frame(day_of_year = seq(min(df$day_of_year), max(df$day_of_year))))
+  preds <- predict(mod, newdata = preddata, type = "link", se.fit = TRUE)
+  preds_upr <- predict(mod_upr, newdata = preddata, type = "link", se.fit = TRUE)
+  preds_lwr <- predict(mod_lwr, newdata = preddata, type = "link", se.fit = TRUE)
+  
+  critval <-  qnorm(0.975) #1.96 ## approx 95% CI
+  upr <- preds_upr$fit + (critval * preds_upr$se.fit)
+  lwr <- preds_lwr$fit - (critval * preds_lwr$se.fit)
+  fit <- preds$fit
+  
+  fit2 <- mod$family$linkinv(fit)
+  upr2 <- mod_upr$family$linkinv(upr)
+  lwr2 <- mod_lwr$family$linkinv(lwr)
+  preddata$fit <- fit2 
+  preddata$lwr <- lwr2 
+  preddata$upr <- upr2 
+  preddata <- left_join(preddata, df2, by = "day_of_year")
+  ggplot(data = preddata, mapping = aes(x = day_of_year,y = fit)) + 
+    geom_point(size =2) +
+    geom_point(data = df, aes(x = day_of_year, y = chig_proportion)) +
+    #stat_smooth(method="glm", method.args=list(family = quasibinomial)) + 
+    geom_ribbon(data = preddata, mapping=aes(x = day_of_year, ymin = lwr, ymax = upr), fill = "grey", alpha = 0.3) +
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = upr), col="grey") + 
+    geom_line(data = preddata, mapping=aes(x = day_of_year, y = lwr), col="grey") +
+    geom_point(data = preddata, mapping=aes(x = day_of_year, y = V6), col="grey") +
+    xlab("Day of the year") +
+    ylab("Chignik %") +
+    ggtitle("weighted by inv_var") + 
+    theme_bw() 
+  #return(preddata)  # returns the predicted data but not the 
+}
+
+x <- logistic_by_year_ci_uw(anchor_df,2018)
 
 
 df <- anchor_df %>%

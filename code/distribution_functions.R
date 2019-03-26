@@ -9,9 +9,10 @@ library(mixdist)
 library(data.table)
 library(lubridate)
 library(gridExtra)
+library(sfsmisc)
 #citation("mixdist")
 #library(here)
-
+?ecdf.ksCI()
 windowsFonts(Times=windowsFont("Times New Roman"))
 options(scipen = 999)
 
@@ -53,7 +54,7 @@ data_prep_early <- function(df, year_wanted){
 }
 
 year_stats <- function (df, year_wanted){
-  #df <- all
+  #df <- chig_data
   #year_wanted <- 2006
   df %>%
     filter(year(date)==year_wanted)-> df
@@ -73,7 +74,7 @@ year_stats <- function (df, year_wanted){
   
   df %>%
     mutate(dist_percent = percent_dist(fit, df$day_of_year),
-           run_early_dis = dist_percent*run,
+           run_early_dis = dist_percent*run*100,
            cum_run_dis = cumsum(run_early_dis),
            cum_run_gen = cumsum(run_early_gen)) ->df
   min(df$day_of_year, na.rm = TRUE)
@@ -111,6 +112,7 @@ year_stats <- function (df, year_wanted){
     coord_cartesian(xlim = c(150, 220))+
     theme(legend.justification = c(1,0), legend.position = c(1,0))+
     ggtitle(paste0(year_wanted, " Early Run Estimation"))
+
 }
 
 graph_year <- function(df){
@@ -286,7 +288,7 @@ dnormfit <- function(fit, x, dist_num = 1){
 }
 
 percent_dist <- function(fit, x, dist_num = 1){
-  dnormfit(fit, x, dist_num)/(dnormfit(fit, x, 1)+dnormfit(fit, x, 2)+dnormfit(fit, x, 3)) 
+  dnormfit(fit, x, dist_num)/sum(dnormfit(fit, x, 1), dnormfit(fit, x, 2), dnormfit(fit, x, 3), na.rm =TRUE) 
 }
 
 pnormfit <- function(fit, x, dist_num =1){

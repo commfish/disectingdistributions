@@ -27,12 +27,13 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          chignik = Chignik_Hook_Kujulik) %>%
   mutate(esc = early_esc_genetics + late_esc_genetics,
          #catch = early_catch_genetics + late_catch_genetics,
-         catch_chignik = Lagoon + chignik,
+         catch_chignik = Lagoon, # + chignik,
          run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
          year = year(date),
          day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
+
 
 # weir_data uses harvest data from farther flung areas
 weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
@@ -56,7 +57,7 @@ year_vector <- c(2006:2008,2010:2017)
 
 fix_date_est <-weir_data %>%
   dplyr::select(run, day_of_year, year) %>%
-  dplyr::filter(day_of<year < 186) %>%
+  dplyr::filter(day_of_year < 186) %>%
   dplyr::group_by(year) %>%
   dplyr::summarise(sum_july4 = sum(run))
 
@@ -73,6 +74,17 @@ early_look(chig_data, 2015)
 early_look(weir_data, 2016) 
 early_look(weir_data, 2017) 
 
+early_look(chig_data, 2006) 
+early_look(chig_data, 2007) 
+early_look(chig_data, 2008) 
+early_look(chig_data, 2010) 
+early_look(chig_data, 2011) 
+early_look(chig_data, 2012) 
+early_look(chig_data, 2013) 
+early_look(chig_data, 2014) 
+early_look(chig_data, 2015) 
+early_look(chig_data, 2016) 
+early_look(chig_data, 2017) 
 
 for(i in year_vector ){
   distribution_estimation_norms_SEQ_n1(chig_data, i)
@@ -163,6 +175,7 @@ year_stats(chig_data, 2014)
 year_stats(chig_data, 2015)
 year_stats(chig_data, 2016)
 year_stats(chig_data, 2017)
+
 
 
 #2006 in detail
