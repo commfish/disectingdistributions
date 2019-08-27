@@ -44,6 +44,8 @@ data_prep <- function(df, year_wanted){
     # This is required for fitting the mixture. See mixdata {mixdist}
     dplyr::select(day_of_year, run) -> df
 }
+
+#This function is for preping early run data as defined by genetics for distribution fitting
 data_prep_early <- function(df, year_wanted){
   df %>% 
     filter(year(date)==year_wanted) %>%
@@ -129,11 +131,18 @@ graph_year_early <- function(df){
     labs(title = "Early Run Daily weir passage", x = "date in number format", y = "Number of fish")
 }
 
+#This function takes the genetically defined early run and using it's mean and standard deviation fits a "gamma"
+# (normal) distribution. This steps helps us to see what the genetically defined early run parameters are.
+#This give us a basis for our starting points when fitting the distributions without genetics
 early_look <- function(df, year_wanted){
   df <- data_prep_early(df, year_wanted)
   fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
   dist_plot(fit, year_wanted)
 }
+
+#The following functions starting with distribution_estimation make use of the Expectation Maximization algorithms
+#found int he mixdist package. Some amount of coding is in place to "automate" the functions by using the mean and sigmas
+#from the data set, but that is only one way to set the starting values, one can also guess at the means and sigmas of the distributions
 
 distribution_estimation_norms <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
@@ -152,6 +161,7 @@ distribution_estimation_norms <- function(df, num_of_distributions = 3, mean_gue
   
 }
 
+#This fits with the additional constraint that means are fit with equal spacing.
 distribution_estimation_norms_MES <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
@@ -169,6 +179,7 @@ distribution_estimation_norms_MES <- function(df, num_of_distributions = 3, mean
   
 }
 
+#This fits with the additional constraint that standard deviations are equal.
 distribution_estimation_norms_SEQ <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   #df<-df_fit 
   if(missing(mean_guess_given)) {
@@ -186,6 +197,7 @@ distribution_estimation_norms_SEQ <- function(df, num_of_distributions = 3, mean
   
 }
 
+#This fits with the additional constraint that the first mean is fixed.
 distribution_estimation_norms_SEQ_n1 <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   if(missing(mean_guess_given)) {
@@ -206,6 +218,7 @@ distribution_estimation_norms_SEQ_n1 <- function(df, num_of_distributions = 3, m
   
 }
 
+#Fits with the additional constraint that the sigma on the first distribution is fixed
 distribution_estimation_norms_SFX <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   mean_guess = c(mean(df$day_of_year) -30, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -214,6 +227,7 @@ distribution_estimation_norms_SFX <- function(df, num_of_distributions = 3, mean
   (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(consigma="SFX", fixsigma= c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000))  
 }
 
+#Fits with the additional constraint that the first mean is fixed, in this case at 174, and sigma is guessed to by 8.6 for each of the 3 distributions.
 distribution_estimation_norms_MFX <-  function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'gamma'){
   
   mean_guess = c(174, mean(df$day_of_year), mean(df$day_of_year)+30) #currently the default is for three distributions.
@@ -222,6 +236,7 @@ distribution_estimation_norms_MFX <-  function(df, num_of_distributions = 3, mea
   (fitpro <- mix(as.mixdata(df), mixparam(mu=mean_guess, sigma=sigma_guess),constr = mixconstr(conmu="MFX", fixmu= c(TRUE, FALSE, FALSE)), dist=distibution_guess, iterlim=5000))  
 }
 
+#Fits with the constraint that the Weibull distribution is used with the guess of the sigmas  = 9 
 distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
   
   if(missing(mean_guess_given)) {
@@ -239,6 +254,7 @@ distribution_estimation_weibull <- function(df, num_of_distributions = 3, mean_g
   
 }
 
+#Fits with the constraint that the Weibull distribution is used with the sigmas equal. 
 distribution_estimation_weibull_SEQ <- function(df, num_of_distributions = 3, mean_guess_given , sigma_guess_given, distibution_guess = 'weibull'){
   
   if(missing(mean_guess_given)) {
@@ -256,6 +272,7 @@ distribution_estimation_weibull_SEQ <- function(df, num_of_distributions = 3, me
   
 }
 
+#plots the distributions
 dist_plot <- function (fitpro, year_wanted){
   #Plot the results  
   # pdf(NULL)
