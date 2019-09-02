@@ -57,7 +57,7 @@ data_prep_early <- function(df, year_wanted){
 
 year_stats <- function (df, year_wanted){
   #df <- chig_data
-  #year_wanted <- 2006
+  #year_wanted <- 2008
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -65,12 +65,14 @@ year_stats <- function (df, year_wanted){
   #print(run_size)
   df_fit <- data_prep(df, year_wanted)
   fit <- distribution_estimation_norms_SEQ(df_fit) 
+  #fit <- (fit <- mix(as.mixdata(df08), mixparam(mu=c(177, 205, 245), sigma= c(10,10,8.6)), constr = mixconstr(conmu="MFX", fixmu= c(TRUE, FALSE, FALSE)), dist= 'gamma', iterlim=5000)) #constr = mixconstr(consigma="SEQ"),
   #dist_plot (fit, year_wanted)
+  #dist_plot (fit)
   df_fit_early <- data_prep_early(df, year_wanted)
   fit_early <- distribution_estimation_norms(df_fit_early)
   
   #print("Mean day-of-year & sd based on runtiming distributions alone")
-  #print(c(yday(fit$parameters$mu[1]), fit$parameters$sigma[1]))
+  #print(c(yday(floor(fit$parameters$mu[1])), fit$parameters$sigma[1]))
   #print("Mean day-of-year & sd based on additional genetics information")
   #print(c(yday(fit_early$parameters$mu[1]), fit_early$parameters$sigma[1]))
   
@@ -87,17 +89,18 @@ year_stats <- function (df, year_wanted){
   #print("runtiming distribution/genetics runtiming distribution")
   #print(max(df$cum_run_dis)/max(df$cum_run_gen))
   #xaxis <- tickr(df, day_of_year, 5)
-  df %>%
-    dplyr::select(day_of_year, dist_percent, prop_early_genetics) %>% 
-    melt(id = "day_of_year") -> df2
-  ggplot(df2, aes(day_of_year, value, colour = variable))+
-    geom_line(size = 3)+
-    scale_colour_manual(name = "Modeled by",
-                        labels = c("Distribution only", "Genetics"), 
-                        values=c("green", "blue"))+
-    labs(y = "Proportion of run", x= "Day of the year")+
-    theme(legend.justification = c(1,1), legend.position = c(1,1))+
-    ggtitle(paste0(year_wanted, " Runtiming Assignment "))
+  
+  #df %>%
+  #  dplyr::select(day_of_year, dist_percent, prop_early_genetics) %>% 
+  #  melt(id = "day_of_year") -> df2
+  #ggplot(df2, aes(day_of_year, value, colour = variable))+
+  #  geom_line(size = 3)+
+  #  scale_colour_manual(name = "Modeled by",
+  #                      labels = c("Distribution only", "Genetics"), 
+  #                      values=c("green", "blue"))+
+  #  labs(y = "Proportion of run", x= "Day of the year")+
+  #  theme(legend.justification = c(1,1), legend.position = c(1,1))+
+  #  ggtitle(paste0(year_wanted, " Runtiming Assignment "))
   
   df %>%
     dplyr::select(day_of_year, cum_run_dis, cum_run_gen) %>% 
@@ -135,9 +138,13 @@ graph_year_early <- function(df){
 # (normal) distribution. This steps helps us to see what the genetically defined early run parameters are.
 #This give us a basis for our starting points when fitting the distributions without genetics
 early_look <- function(df, year_wanted){
+  #df <- chig_data
+  #year_wanted <- 2010
   df <- data_prep_early(df, year_wanted)
   fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
   dist_plot(fit, year_wanted)
+  output  <- cbind(fit$parameters[1], fit$parameters[2], fit$parameters[3],fit$se[1], fit$se[2], fit$se[3])
+  return(output)
 }
 
 #The following functions starting with distribution_estimation make use of the Expectation Maximization algorithms
@@ -298,12 +305,15 @@ auto_year<- function (df, year_wanted) {
   dist_plot(fitpro, year_wanted )
 }
 
-
+#The density for the specified distribution (dist_num)
 dnormfit <- function(fit, x, dist_num = 1){
   #fit$parameters$pi[dist_num]*dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
   dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
 }
 
+#This is the percent for the specified distribution (dist_num) compared to all the other distributions. 
+# x = day fo the year
+#If unspecified the distribution number is 1, representing the first, or black lake distribution.
 percent_dist <- function(fit, x, dist_num = 1){
   dnormfit(fit, x, dist_num)/sum(dnormfit(fit, x, 1), dnormfit(fit, x, 2), dnormfit(fit, x, 3), na.rm =TRUE) 
 }
@@ -461,3 +471,4 @@ tails_equal_date <- function(fit, dist_a =1, dist_b =2){
   
   return(current_x) #(as.Date.numeric(current_x)) # date 
 }
+
