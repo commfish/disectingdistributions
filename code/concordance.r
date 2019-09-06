@@ -13,7 +13,7 @@ source('code/distribution_functions.R')
 #library(lubridate)
 getwd()
 
-# test that remote origin changed
+# test2 that remote origin changed
 # data ----
 chig_data <-read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>% 
   dplyr::select( Date, Propotionearly, Earlyesc, Lateesc) %>%
