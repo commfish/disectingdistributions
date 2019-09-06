@@ -27,7 +27,7 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          chignik = Chignik_Hook_Kujulik) %>%
   mutate(esc = early_esc_genetics + late_esc_genetics,
          #catch = early_catch_genetics + late_catch_genetics,
-         catch_chignik = Lagoon, # + chignik + Kumlik,
+         catch_chignik = Lagoon, # + chignik + Kumlik, This is where you change things to look at different harvest data sets. 
          run = esc + catch_chignik, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run,
          date = mdy(Date),
@@ -35,7 +35,7 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
 
 
-# weir_data uses harvest data from farther flung areas
+# weir_data uses harvest data from farther flung areas Chignik Management area CMA and beyond. Thi is the CMA data set.
 weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
   dplyr::select(-X9) %>%
   dplyr::rename(prop_early_genetics = Propotionearly, 
@@ -91,9 +91,9 @@ e17 <- early_look(chig_data, 2017)
 p_df <- rbind(e06, e07, e08, e10, e11, e12, e13, e14, e15, e16, e17)
 genetics_early_summary <- cbind(year_vector, p_df)
 
-for(i in year_vector ){
-  distribution_estimation_norms_SEQ_n1(chig_data, i)
-}
+#for(i in year_vector ){
+#  distribution_estimation_norms_SEQ_n1(chig_data, i)
+#}
 
 for(i in year_vector ){
   early_look(chig_data, i)
@@ -140,10 +140,13 @@ yday("2017-07-04")
 
 
 
-for(i in year_vector){
-  year_stats(chig_data, i)
-}
+#for(i in year_vector){
+#  year_stats(chig_data, i)
+#}
 
+#This is where to look to see how the CMA data set runs.
+# To see how different starting points affect estimates, one can also change the code in the year_stats code to be something in particular 
+#and this will show how it affects it for any particular year. 
 year_stats(weir_data, 2006)
 year_stats(weir_data, 2007)
 year_stats(weir_data, 2008)
@@ -187,11 +190,14 @@ year_stats(chig_data, 2017)
 df08 <- data_prep(weir_data, 2008)
 #write.csv(df08, file = "data/df08.csv")
 
+#2008 & 2015 were a particularly ill-fit years. Try different starting points for mu or sigma, to see how that affects the fit.
+# Fit is evaluated by how close the CDF or early run final estimates are for the genetic and distribution only models.
 df08<- as.mixdata(df08)
 (fit <- mix(as.mixdata(df08), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)),constr = mixconstr(consigma="SEQ"), dist= 'gamma', iterlim=5000)) 
-(fit<- mix(as.mixdata(df08), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)), constr = mixconstr(consigma="SEQ"), dist='weibull'))  #, iterlim=5000
-mean_guess <- c(fit$parameters$mu[1],fit$parameters$mu[2],fit$parameters$mu[3])
+#(fit<- mix(as.mixdata(df08), mixparam(mu=c(175, 205, 240), sigma= c(10,10,10)), constr = mixconstr(consigma="SEQ"), dist='weibull'))  #, iterlim=5000
+#mean_guess <- c(fit$parameters$mu[1],fit$parameters$mu[2],fit$parameters$mu[3])
 plot(fit)
+year_stats(weir_data, 2008)#How close are the models?
 fit$parameters$mu[1]-1
 
 dist_plot(fit, 2006)
