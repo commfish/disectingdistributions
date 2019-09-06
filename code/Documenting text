@@ -1,0 +1,12 @@
+Text file for documenting research.
+
+The weir_data includes the harvest currently allocated to Chignik.
+If one runs the year_stats(weir_data, year) function one can see the CDF and final early run estimates between two models the genetic and runtiming model, and the runtiming only model. *Not this this the runtiming dodel iwth the CMA data set.
+
+Compare this now to the chig_data. In chig_data we select the particular harvest of interest and call it catch_chignik. We also run the year_stats() function. One can see a great improvement for the years, 2008 2012 and 2015, with a chig_data set made up of harvest from the Lagoon. Over all this data set helps the distribution-only model to behave more like the genetics model. 
+One can also take different harvest areas in addition to the lagood and run the models to see how that affects the model fit.
+
+Can the model be better improved by trying different starting points for the estimates of mu and sigma in the EM algorithm?
+The different starting points don't appear to improve the model structure, especially for the 2008 and 2015 years. The mu for the early run distribution (mean runtime day) was ajusted the the right and to the left by 5 days of the original mean runtime day, which from inspection didn't appear to improve the model much, and at time made it worse. 
+
+So to summarise: Changing the harvest data, (and not the starting estimates for mu), seems to improve the model the most. 
