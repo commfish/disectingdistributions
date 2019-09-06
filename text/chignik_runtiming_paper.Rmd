@@ -1,0 +1,114 @@
+---
+title: "Identifying genetic populations of sockeye salmon, Onchorhynchus Nerka, in the Chignik watershead, Alaska, using runtiming information alone."
+author: "Sarah J. H. Power"
+date: "December 31, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+title: 'Identifying genetic populations of sockeye salmon, Onchorhynchus Nerka, in the Chignik watershead, Alaska, using runtiming information'
+
+author: |
+  | Sarah J.H. Power ^[\noindent  Corresponding author: sarah.power@alaska.gov \newline Current address: Alaska Department of Fish and Game, Division of Commercial Fisheries, Juneau, Alaska], Keith R. Criddle, Milo Adkison, 
+  | College of Fisheries and Ocean Sciences, University of Alaska Fairbanks, 17101 Point Lena Loop Road, Juneau, Alaska 99801 
+  
+bibliography: "sarah.bib"
+csl: "fishfish.csl"
+fontsize: 11pt
+output:
+  bookdown::pdf_document2:
+    toc: false
+    fig_caption: true
+    
+
+# These are LaTex settings to take care of floating figures/tables, line spacing, etc
+header-includes:
+  - \usepackage{setspace}\doublespacing
+  - \usepackage{lineno}
+  - \linenumbers
+  - \usepackage{pdflscape}
+  - \usepackage{fullpage}
+---
+
+Maintaining genetic diversity is imperitive for conservation and the continued strength of a species, which in turn is vital to and their economic, and cultural value especially in the light of changing conditions in their habitats. For salmon returning to a single watershed, substocks with different genetic groupings can occur during overlapping periods, making them difficult to identify based on runtiming without additional work in either tagging studies, scale pattern analysis, or genetic analysis, any of which take considerable resources. This paper will reevaluate runtiming to examine if enumeration of genetically identified substocks can be made without the additional work of these other costly studies and thus allow resources to be used for conservation and management elsewhere. 
+
+Sockeye salmon onchohynchus nerka, are diverse in terms of genetics (citations), and  life history [@Pavey2007] (citations). Diverse genetics and life histories can be found between populations sharing rearing habitats. [@varnavskaya1994] 
+Chignik sockeye exhibit lifehistory and genetic diversity (), spawning in rivers and lakes, 
+
+Chignik sockeye are economically important, supporting the largest sockeye commercial fishery in the Alaska Peninsula region, and as well as the a significant food source for the communities of x, y, and z, 
+
+The subpopulations in the Chignik watershead were examined via tagging studies as early as the 1960's (citation) as early run fish, migrating between May and mid- July were found to be primary heading for Black Lake and its tributaries, whilst later run fish migrating between mid-June and into October primarily headed for Chignik lake and its tributaries.
+
+Later scale pattern analysis was used additionally to identify fish from the two subpopulations especially during the overlapping period of migration through the Chignik weir. (figure of map showing weir. ) Scale pattern analysis was found to be too costly so in 2004 the department of fish and Game shose to use a fixed point between the two runs to discriminate between the stocks for management purposes. The point was chosen such that the number of early run fish occuring after the point would be equaivalent to the number of late run fish occuring before the point. 
+
+Creelman groupd sockeye into four genetically similar substocks. She also identified that these substocks had certain geographic and runtiming niches.  
+
+Most recently, from 2014 to current day, genetics has been used to discern between the runtiming of the two populations.  
+(citations) Genetics is also costly, and work using genetics has been primary funded by grants from outside of the management agency. So this investigation was used to discern if runtiming information could be expoited to estimate the runtiming of the stocks at the weir. Also genetic analysis can only be preformed for the years, and time periods for whcih genetics have been collected in sufficient numbers. The technique in this paper has the potential to be applied back as far as accurate runtiming information exists, which for Chignik is 195X. (citation)
+
+I hypothesize that for distinct genetic substocks in a single watershed, the runtiming distribution of a single substock can be estimated based solely on the overlapping runtiming distributions just as well as those found with the additional aid of genetics.
+
+Methods
+
+Runtiming data
+Runtiming data consists of weir counts but also of havests that occur within a certain proximity to the watershed.
+For weir counts, a fish-tight weir is erected between approximately May 1 and September 30. Fish are enumerated by visual counts for 10 minutes out of every hour. Those visual counts are expanded to the entire hour. Daily passage at the wier on the date sighted is used in the analysis.   
+For harvest counts, fish are enumerated from information provided by the fishing industy. Genetic identification of harvested sockeye in the vast area of the Alaska Penisula has been estimated during a variety of time and areas within the 2006-2012 (check) time frame. (citation). Harvest occuring in the close proximity of the watershed has been found to be consistently in the 90 -100% range. It was only this harvest that was included in the runtiming data to estimate the proportions of early and late run fish and not harvest from a wider area which is used to estimate run size. 
+
+To account for the run timing which would have occured at the weir if there had been no harvest, a lag is applied to the date of harvest which approximates sockeye swim time from the point of harvest to the wier. (citation) Sockeye in the Chignik Lagoon (ADF&G statistical areas 27110) had a 1 day delay, and fish in the Chignik Bay District and Kujulik area (ADF&G statistical areas 27220-27250) had a 2 day delay. 
+
+Genetic Estimation
+Genetic samples were collected from 2006-2018, 2009 results have not been reported. Genetic samples were collected form about mid - June to the end of July at the weir. The number of sample dates varies from 5 to 11 per year depending on the year. From 2006 - 2008 approximately 400 samples were taken for each sample. From 2010 onward the number of samples averages 187, with a low of 156 and a high of 190. (perhaps have a table) Check: were these all taken on one day?
+A baseline made of (how many?) single-nucleotide polymorphisms was used to discern the percentage of fish pertaining to the early run using BAYES software. See x and Y citations for more information
+
+For each year where genetic samples were available a weighted logistic regression equation was calculated, with the weights of each sample date estimate being equal to the inverse of the variance as found by bayes. In addition two anchor points were created for a point at which the black lake stock were believed to be 100%, and 0%. The dates of these points were chosen to be May 25 and August 1. The weight attibuted to these points was the minumum wieght for each year ws given to these points. 
+
+The logistic equation was then applied to the the daily counts Of fish that either passed the wier, or would have passed the weir had they not been caught in the fishery. 
+
+Runtime-only Estimation
+
+Three normally distributed, equal-varianced distributions were fit on the runtiming data using an R package mixdist (citation). The package uses the expectation- maximization algorithm [Dempster1977] and a Newton-type methods [Du2002] to estimate the underlying overlapping distributions. 
+
+The proportion of early run fish compared to later run fish was applied to runtiming data.
+
+The two cumulative runs of the early run estimates via the two estimates was compared for each year. 
+Also anderson darling tests were performed for each year. 
+
+Results
+
+Results from each of the years reveals most years were similar. Two years seemed more different were 2008 and 2015. 
+
+Matrix of cumulative graphs.
+
+Table of KS tests
+
+
+Discussion
+
+
+conclusions
+Acknowledgements
+References
+Supporting Materials
+
+
+```{r cars}
+summary(cars)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
