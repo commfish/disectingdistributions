@@ -2,3 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# File types
+*.pdf
+*.jpg
+*.tiff
+*.doc
+*.docx
+*.png
+*.xls
+*.xlsx
+*.zip
+.exe.lnk  
+.lnk

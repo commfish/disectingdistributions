@@ -1,0 +1,68 @@
+# File types gitignore example
+*.pdf
+*.jpg
+*.tiff
+*.doc
+*.docx
+*.png
+*.xls
+*.xlsx
+*.zip
+.exe.lnk  
+.lnk
+
+# files with individual MCMC outputs
+**/stats.csv
+
+
+
+# do not ignore this one
+!DATA/BaseData/SPAS_InputMatrices_Used_1984to2018.xlsx
+
+
+# DO ignore these (very large)
+coda_allpars.csv
+
+/ReportFigs/Backup/
+
+
+# Folders
+/data/sources
+/DATA/SOURCES
+/DATA/ForSharepoint
+/Project_Management
+/Reference
+/Working_Group
+/Local Refs
+/SPAS/BTSPAS Impl with Dropout - FromMasterFiles/BTSPAS_OUTPUT
+/SPAS/BTSPAS Impl without Dropout - FromMasterFiles/BTSPAS_OUTPUT
+/SPAS/BTSPAS Impl with Dropout - FromAnnualMatrices/BTSPAS_OUTPUT
+/SPAS/BTSPAS Impl without Dropout - FromAnnualMatrices/BTSPAS_OUTPUT
+/SPAS/BTSPAS Impl with Dropout - FromMasterFiles/OUTPUT
+/SPAS/BTSPAS Impl without Dropout - FromMasterFiles/OUTPUT
+/SPAS/BTSPAS Impl with Dropout - FromAnnualMatrices/OUTPUT
+/SPAS/BTSPAS Impl without Dropout - FromAnnualMatrices/OUTPUT
+/MARKDOWN/Fig_Sources
+/MARKDOWN/Doc_Sources
+/WG
+
+# Session Data & History files
+.RData
+.Rhistory
+.Rapp.history
+.RDataTmp
+.RData
+.Ruserdata
+
+# Session Data & History files
+.RData
+.Rhistory
+.Rapp.history
+.RDataTmp
+.Rproj.user
+
+# shortcut files
+.exe.lnk  
+.lnk
+
+
