@@ -26,7 +26,7 @@ data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district9-3-19.csv') 
          day_of_year = yday(date)) # %>% #-> chig_data # convert the Date to its numeric equivalent 
 
 #This works, but isn't elegant. See function "define_harvest" below where I tried for a more elegant solution
-df18lagoon <- data2018 %>% 
+weir_data <- df18lagoon <- data2018 %>% 
   mutate(harvest = lagoon_272_10, # This is where you change things to look at different harvest data sets. 
          run = esc + harvest, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
          run_early_gen = prop_early_genetics*run)
@@ -68,7 +68,7 @@ chig_data <- read_csv('data/ChigISGrunappt2006-2017catch.by.district.csv') %>%
          day_of_year = yday(date)) #-> chig_data # convert the Date to its numeric equivalent
 
 
-# weir_data uses harvest data from farther flung areas Chignik Management area CMA and beyond. Thi is the CMA data set.
+# weir_data uses harvest data from farther flung areas Chignik Management area CMA and beyond. This is the CMA data set.
 weir_data <- read_csv('data/ChigISGrunappt2006-2017.csv') %>% 
   dplyr::select(-X9) %>%
   dplyr::rename(prop_early_genetics = Propotionearly, 
