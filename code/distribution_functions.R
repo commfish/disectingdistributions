@@ -38,7 +38,7 @@ theme_sleek <- function(base_size = 12, base_family = "Times") {
 # functions ----
 data_prep <- function(df, year_wanted){
   df %>% 
-    filter(year(date)==year_wanted) %>%
+    dplyr::filter(year(date)==year_wanted) %>%
     # Create a data frame whose first column are the dates in numeric format
     # and whose second column are the frequencies. 
     # This is required for fitting the mixture. See mixdata {mixdist}
@@ -48,7 +48,7 @@ data_prep <- function(df, year_wanted){
 #This function is for preping early run data as defined by genetics for distribution fitting
 data_prep_early <- function(df, year_wanted){
   df %>% 
-    filter(year(date)==year_wanted) %>%
+    dplyr::filter(year(date)==year_wanted) %>%
     # Create a data frame whose first column are the dates in numeric format
     # and whose second column are the frequencies. 
     # This is required for fitting the mixture. See mixdata {mixdist}
@@ -138,7 +138,7 @@ graph_year_early <- function(df){
 # (normal) distribution. This steps helps us to see what the genetically defined early run parameters are.
 #This give us a basis for our starting points when fitting the distributions without genetics
 early_look <- function(df, year_wanted){
-  #df <- chig_data
+  #df <- df_data
   #year_wanted <- 2010
   df <- data_prep_early(df, year_wanted)
   fit <- mix(as.mixdata(df), mixparam(mu=mean(df$day_of_year), sigma=sd(df$day_of_year)), dist="gamma", iterlim=5000)
