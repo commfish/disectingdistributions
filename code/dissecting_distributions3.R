@@ -9,6 +9,8 @@ library(RDS)
 library(tidyverse)
 library(mixdist)
 library(lubridate)
+#library(gridExtra)
+library(cowplot)
 library(zoo) # to convert numeric date back to a number
 source('code/distribution_functions.R')
 
@@ -25,12 +27,19 @@ data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district9-3-19.csv') 
          year = year(date),
          day_of_year = yday(date)) # %>% #-> chig_data # convert the Date to its numeric equivalent 
 
-#Defining harvest Change df_data to the one you want to runt through. 
-df_data <- df18lagoon <- data2018 %>% mutate(harvest = lagoon_272_10)
-df18ocdb_272_20 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20)
-df18ocdb_272_30 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30)
+# Defining harvest Change df_data to the one you want to run through. 
+# df_data <- df18lagoon <- data2018 %>% mutate(harvest = lagoon_272_10)
+# df_data <- df18ocdb_272_20 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20)
+# df_data <- df18ocdb_272_30 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30)
+# df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
+# df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
+ df_data <- all <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums())
+# df_data <- kujulik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53) %>% rowSums())
+# df_data <- kumlik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kmbd80_272_64) %>% rowSums())
+# df_data <- west_kuj <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53, western) %>% rowSums())
 
-#working on this 
+
+# More data processing.
 post_harvest <- function(df = data2018){
   df <- df %>% 
     mutate(run = esc + harvest, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
@@ -39,19 +48,11 @@ post_harvest <- function(df = data2018){
   return(df)
 }
 
-df_data <- post_harvest(df_data) 
+df_data <- post_harvest(df_data)
 
-#not working use loops
-df_d <- df_data %>%
-  filter(year > 2006) %>%  # 2006 not working. need to check data. remove for now.
-  group_split(year) %>%
-  purrr::map_df(~ early_look(., year_wanted = year))
+year_vector <- c(2006:2008,2010:2018)
 
-auto_year(weir_data, 2006)
-
-
-year_vector <- c(2007:2008,2010:2018)
-
+# figures ----
 out <- list()
 #p <-par(mfrow = c(2,5))
 for(i in 1:length(year_vector) ){
@@ -62,39 +63,51 @@ for(i in 1:length(year_vector) ){
 #par(p)
 eout <- do.call("rbind", out)
 
-auto_year(df_data, 2007)
-
-year_vector <- c(2014:2017)
-out <- list()
-#par(mfrow = c(2,3))
 for(i in 1:length(year_vector) ){
   png(file = paste0("figures/mixture_auto", year_vector[i], ".png"), height = 4, width = 6, units = "in", res = 300)
   #png(file = paste0("figures/mixture_auto", year_vector[i], ".png")) #, height = 4, width = 6, units = "in", res = 300)
   auto_year(df_data, year_vector[i])
   dev.off()
 }
-par(p)
-aout <- do.call("rbind", out)
 
-out <- list()
-for(i in year_vector ){
-  year_stats(df_data, i)
-}
-year_stats(df_data, 2007)
-
-out <- list()
+plots <- list()
 for(i in 1:length(year_vector) ) {
-  png(file = paste0("figures/year_stats", year_vector[i], ".png"), height = 4, width = 6, units = "in", res = 300)
-  year_stats(df_data, year_vector[i])
-  dev.off()
+  plots[[i]] <- year_stats(df_data, year_vector[i])
+  ggsave(filename = paste0("figures/CDF",year_vector[i], ".png", sep = ""), device = png(), width = 6, height = 4, units = "in", dpi = 300)
 }
-yout <- do.call("rbind", out)
 
-year_stats(df_data, 2006)
-year_stats(df_data, 2007)
-year_stats(df_data, 2008)
-year_stats(df_data, 2010)
-year_stats(df_data, 2011)
+do.call(grid.arrange, plots)
+plots[[2]]
 
-e06 <- early_look(df_data, 2006) #06 not working, perhaps check data 
+plots = lapply(1:9, function(.x) year_stats(,year_vector[i]))
+require(gridExtra)
+do.call(grid.arrange,  plots)
+
+y06 <- year_stats(df_data, 2006)
+y07 <- year_stats(df_data, 2007)
+y08 <- year_stats(df_data, 2008)
+y10 <- year_stats(df_data, 2010)
+y11 <- year_stats(df_data, 2011)
+y12 <- year_stats(df_data, 2012)
+y13 <- year_stats(df_data, 2013)
+y14 <- year_stats(df_data, 2014)
+y15 <- year_stats(df_data, 2015)
+y16 <- year_stats(df_data, 2016)
+y17 <- year_stats(df_data, 2017)
+y18 <- year_stats(df_data, 2018)
+
+
+
+fig <- cowplot::plot_grid(y06, y07, y08, y10, y11,  y12, ncol = 3)
+fig
+
+df_data %>% group_split(year)%>%
+  map_df(year_stats(., year))
+
+         
+df_data %>%
+  group_by(year) %>%
+  nest() %>%
+  mutate( graph = map_df(year_stats(., year))) %>%
+  unnest()
 
