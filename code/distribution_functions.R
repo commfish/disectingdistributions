@@ -37,8 +37,10 @@ theme_sleek <- function(base_size = 12, base_family = "Times") {
 
 # functions ----
 data_prep <- function(df, year_wanted){
+  #df <- df_data
+  #year_wanted <- 2006
   df %>% 
-    dplyr::filter(year(date)==year_wanted) %>%
+    dplyr::filter(year(date) == year_wanted) %>%
     # Create a data frame whose first column are the dates in numeric format
     # and whose second column are the frequencies. 
     # This is required for fitting the mixture. See mixdata {mixdist}
@@ -56,8 +58,8 @@ data_prep_early <- function(df, year_wanted){
 }
 
 year_stats <- function (df, year_wanted){
-  #df <- chig_data
-  #year_wanted <- 2008
+  #df <- df_data
+  #year_wanted <- 2006
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -106,17 +108,18 @@ year_stats <- function (df, year_wanted){
     dplyr::select(day_of_year, cum_run_dis, cum_run_gen) %>% 
     melt(id = "day_of_year") -> df3
   #yaxis <- tickr(df3, value, 10000)  
-  ggplot(df3, aes(day_of_year, value, colour = variable))+
-    geom_line(size = 3)+
-    scale_colour_manual(name = "Modeled by",
-                        labels = c("Distribution only", "Genetics"), 
-                        values=c("green", "blue"))+
-    labs(y = "Cumulative run", x= "Day of the year")+
+  ggplot(df3, aes(day_of_year, value, group = variable)) +
+    geom_line(size = 1.5, aes(linetype = variable)) +
+    scale_linetype_manual(name = "Modeled by",
+                        labels = c("Distribution only", "Genetics"),
+                        values = c("solid", "dotted")) +
+    labs(y = "Cumulative run", x= "Day of the year") +
     #scale_x_continuous(breaks = xaxis$breaks, labels = xaxis$labels)+
     #scale_y_continuous(breaks = yaxis$breaks, labels = yaxis$labels)+
-    coord_cartesian(xlim = c(150, 220))+
-    theme(legend.justification = c(1,0), legend.position = c(1,0))+
-    ggtitle(paste0(year_wanted, " Early Run Estimation"))
+    coord_cartesian(xlim = c(150, 220)) +
+    ggtitle(paste0(year_wanted, " Early Run Estimation")) + 
+    theme_bw() +
+    theme(legend.justification = c(.5,0), legend.position = "bottom")
 
 }
 
@@ -295,14 +298,17 @@ dist_plot <- function (fitpro, year_wanted){
 }
 
 auto_year<- function (df, year_wanted) {
-  df_year <- data_prep(df, year_wanted) 
+  # df <- weir_data
+  # year_wanted <- 2013
+  
+  df <- data_prep(df, year_wanted) 
   #graph_year(df_year)
   #fitpro <- distribution_estimation_norms(df_year) 
   #dist_plot(fitpro, year_wanted )
   #fitpro <- distribution_estimation_norms_MFX(df_year) 
   #dist_plot(fitpro, year_wanted ) 
-  fitpro <- distribution_estimation_norms_SEQ(df_year) 
-  dist_plot(fitpro, year_wanted )
+  fitpro <- distribution_estimation_norms_SEQ(df) 
+  dist_plot(fitpro, year_wanted)
 }
 
 #The density for the specified distribution (dist_num)
@@ -429,6 +435,7 @@ allocation <- function(area, harvest_date){
   }
   return(percent_allocated)
 }
+
 #This function still needs work. 
 tails_difference <- function(fit, x, dist_a =1, dist_b =2){
   difference <- abs(pnormfit(fit, x, 1) + 1 - pnormfit(fit, x, 2))
