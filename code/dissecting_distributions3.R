@@ -9,7 +9,8 @@ library(RDS)
 library(tidyverse)
 library(mixdist)
 library(lubridate)
-#library(gridExtra)
+library(grid)
+library(gridExtra)
 library(cowplot)
 library(zoo) # to convert numeric date back to a number
 source('code/distribution_functions.R')
@@ -98,16 +99,23 @@ y18 <- year_stats(df_data, 2018)
 
 
 
-fig <- cowplot::plot_grid(y06, y07, y08, y10, y11,  y12, ncol = 3)
+fig <- cowplot::plot_grid(y06, y07, y08, y10, y11, y12, y13, y14, y15, y16, y17, y18, ncol = 3)
 fig
 
-df_data %>% group_split(year)%>%
-  map_df(year_stats(., year))
+# y label
+y.grob <- textGrob("Count of early run sockeye", gp=gpar(col="black", fontsize=15, fontfamily = 'Times New Roman'), rot=90)
+#add y label to plot  
+#https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
+fig <- grid.arrange(arrangeGrob(fig, left = y.grob))
+
+fig <- plot_grid(fig, ncol = 1, rel_heights = c(0.1, 1)) # rel_heights values control title margins
+fig <- add_sub(fig, "Day of year", fontfamily = 'Times New Roman')
+
+ggsave(filename = paste0("figures/fig_year_stats", ".png", sep = ""), device = png(), width = 6, height = 9, units = "in", dpi = 300)
+
+
+
+
 
          
-df_data %>%
-  group_by(year) %>%
-  nest() %>%
-  mutate( graph = map_df(year_stats(., year))) %>%
-  unnest()
 
