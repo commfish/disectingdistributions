@@ -59,7 +59,7 @@ data_prep_early <- function(df, year_wanted){
 
 year_stats <- function (df, year_wanted){
   #df <- df_data
-  #year_wanted <- 2006
+  #year_wanted <- 2016
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -77,13 +77,33 @@ year_stats <- function (df, year_wanted){
   #print(c(yday(floor(fit$parameters$mu[1])), fit$parameters$sigma[1]))
   #print("Mean day-of-year & sd based on additional genetics information")
   #print(c(yday(fit_early$parameters$mu[1]), fit_early$parameters$sigma[1]))
-  
+
+  #Must use group_by(day_of_year) %>% to get correct calculations
   df %>%
-    mutate(dist_percent = percent_dist(fit, df$day_of_year),
-           run_early_dis = dist_percent*run*100,
-           cum_run_dis = cumsum(run_early_dis),
-           cum_run_gen = cumsum(run_early_gen)) ->df
+    group_by(day_of_year) %>% 
+    dplyr::mutate(dist_percent = percent_dist(fit,day_of_year),
+                  run_early_dis = dist_percent*run,
+                  cum_run_dis = cumsum(run_early_dis),
+                  cum_run_gen = cumsum(run_early_gen))  -> df #  %>% View()#
   min(df$day_of_year, na.rm = TRUE)
+  
+  # this is for simultaneos graphing. 
+  df_long <- df %>%
+    gather(model_type, proportions, dist_percent, prop_early_genetics)
+  length(df_long$proportions)
+  
+  
+  ks.test(df$dist_percent, df$prop_early_genetics)
+  
+  #ecdf.ksCI(df$dist_percent)
+  
+  ggplot(df, aes(day_of_year, prop_early_genetics)) +
+    geom_point(size=2) + theme_light()
+  ggplot(df, aes(day_of_year, dist_percent)) +
+    geom_point(size=2) + theme_light()
+  
+  ggplot(df_long, aes(x = day_of_year, y = proportions), color = model_type) +
+    geom_point() + theme_light()
   #print("Number of early run by runtiming distribution")
   #print(max(df$cum_run_dis))
   #print("Number of early run by genetics runtiming distribution")
@@ -109,17 +129,17 @@ year_stats <- function (df, year_wanted){
     melt(id = "day_of_year") -> df3
   #yaxis <- tickr(df3, value, 10000)  
   ggplot(df3, aes(day_of_year, value, group = variable)) +
-    geom_line(size = 1.5, aes(linetype = variable)) +
-    scale_linetype_manual(name = "Modeled by",
-                        labels = c("Distribution only", "Genetics"),
+    geom_line(size = 1.5, aes(linetype = variable), show.legend = FALSE) +
+    scale_linetype_manual(#name = "Modeled by",
+                        #labels = c("Distribution only", "Genetics"),
                         values = c("solid", "dotted")) +
-    labs(y = "Cumulative run", x= "Day of the year") +
+    labs(y = " ", x= " ") +
     #scale_x_continuous(breaks = xaxis$breaks, labels = xaxis$labels)+
     #scale_y_continuous(breaks = yaxis$breaks, labels = yaxis$labels)+
     coord_cartesian(xlim = c(150, 220)) +
-    ggtitle(paste0(year_wanted, " Early Run Estimation")) + 
-    theme_bw() +
-    theme(legend.justification = c(.5,0), legend.position = "bottom")
+    ggtitle(paste0(year_wanted)) + #, " Early Run Estimation")) + 
+    theme_bw() #+
+    #theme(legend.justification = c(.5,0), legend.position = "bottom")
 
 }
 
@@ -318,7 +338,7 @@ dnormfit <- function(fit, x, dist_num = 1){
 }
 
 #This is the percent for the specified distribution (dist_num) compared to all the other distributions. 
-# x = day fo the year
+# x = day of the year
 #If unspecified the distribution number is 1, representing the first, or black lake distribution.
 percent_dist <- function(fit, x, dist_num = 1){
   dnormfit(fit, x, dist_num)/sum(dnormfit(fit, x, 1), dnormfit(fit, x, 2), dnormfit(fit, x, 3), na.rm =TRUE) 
