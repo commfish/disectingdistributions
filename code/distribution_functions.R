@@ -12,7 +12,7 @@ library(gridExtra)
 library(sfsmisc)
 #citation("mixdist")
 #library(here)
-?ecdf.ksCI()
+#?ecdf.ksCI()
 windowsFonts(Times=windowsFont("Times New Roman"))
 options(scipen = 999)
 
@@ -59,7 +59,7 @@ data_prep_early <- function(df, year_wanted){
 
 year_stats <- function (df, year_wanted){
   #df <- df_data
-  #year_wanted <- 2016
+  #year_wanted <- 2013
   df %>%
     filter(year(date)==year_wanted)-> df
   #run_size <-sum(df$run)
@@ -67,6 +67,7 @@ year_stats <- function (df, year_wanted){
   #print(run_size)
   df_fit <- data_prep(df, year_wanted)
   fit <- distribution_estimation_norms_SEQ(df_fit) 
+
   #fit <- (fit <- mix(as.mixdata(df08), mixparam(mu=c(177, 205, 245), sigma= c(10,10,8.6)), constr = mixconstr(conmu="MFX", fixmu= c(TRUE, FALSE, FALSE)), dist= 'gamma', iterlim=5000)) #constr = mixconstr(consigma="SEQ"),
   #dist_plot (fit, year_wanted)
   #dist_plot (fit)
@@ -80,14 +81,23 @@ year_stats <- function (df, year_wanted){
 
   #Must use group_by(day_of_year) %>% to get correct calculations
   df %>%
-    group_by(day_of_year) %>% 
+    dplyr::group_by(day_of_year) %>% 
     dplyr::mutate(dist_percent = percent_dist(fit,day_of_year),
-                  run_early_dis = dist_percent*run,
-                  cum_run_dis = cumsum(run_early_dis),
-                  cum_run_gen = cumsum(run_early_gen))  -> df #  %>% View()#
+                  run_early_dis = dist_percent*run) -> df
+
+  df %>%
+    dplyr::group_by(year) %>% 
+    dplyr::mutate(cum_run_dis = cumsum(replace_na(run_early_dis, 0)),
+                  cum_run_gen = cumsum(replace_na(run_early_gen, 0))) %>%
+    dplyr::ungroup(year) -> df #   %>% View(cum_run_gen) #
+  
+  p_early_dis <- sum(df$run_early_dis)/sum(df$run)
+  p_early_gen <- sum(df$run_early_gen)/sum(df$run)
+  
+  
   min(df$day_of_year, na.rm = TRUE)
   
-  # this is for simultaneos graphing. 
+  # this is for simultaneous graphing. 
   df_long <- df %>%
     gather(model_type, proportions, dist_percent, prop_early_genetics)
   length(df_long$proportions)
@@ -102,8 +112,12 @@ year_stats <- function (df, year_wanted){
   ggplot(df, aes(day_of_year, dist_percent)) +
     geom_point(size=2) + theme_light()
   
-  ggplot(df_long, aes(x = day_of_year, y = proportions), color = model_type) +
-    geom_point() + theme_light()
+  log_curve <- ggplot(df_long, aes(x = day_of_year, y = proportions), color = model_type) +
+    geom_point(aes(pch = model_type)) + theme_light() +
+    theme(legend.justification = c(.5,0), legend.position = "bottom")
+  
+  ggsave(filename = paste0("figures/log_curv", year_wanted, ".png", sep = ""), device = png(), width = 7, height = 9, units = "in", dpi = 300)
+  
   #print("Number of early run by runtiming distribution")
   #print(max(df$cum_run_dis))
   #print("Number of early run by genetics runtiming distribution")
@@ -127,8 +141,9 @@ year_stats <- function (df, year_wanted){
   df %>%
     dplyr::select(day_of_year, cum_run_dis, cum_run_gen) %>% 
     melt(id = "day_of_year") -> df3
+  unique(df3$variable)
   #yaxis <- tickr(df3, value, 10000)  
-  ggplot(df3, aes(day_of_year, value, group = variable)) +
+  runCDF <- ggplot(df3, aes(day_of_year, value, group = variable)) +
     geom_line(size = 1.5, aes(linetype = variable), show.legend = FALSE) +
     scale_linetype_manual(#name = "Modeled by",
                         #labels = c("Distribution only", "Genetics"),
@@ -140,6 +155,8 @@ year_stats <- function (df, year_wanted){
     ggtitle(paste0(year_wanted)) + #, " Early Run Estimation")) + 
     theme_bw() #+
     #theme(legend.justification = c(.5,0), legend.position = "bottom")
+  my_list <- list(df = df, "logistic" = log_curve, "runCDF" = runCDF)
+  return(my_list) 
 
 }
 
@@ -340,8 +357,29 @@ dnormfit <- function(fit, x, dist_num = 1){
 #This is the percent for the specified distribution (dist_num) compared to all the other distributions. 
 # x = day of the year
 #If unspecified the distribution number is 1, representing the first, or black lake distribution.
-percent_dist <- function(fit, x, dist_num = 1){
-  dnormfit(fit, x, dist_num)/sum(dnormfit(fit, x, 1), dnormfit(fit, x, 2), dnormfit(fit, x, 3), na.rm =TRUE) 
+percent_dist <- function(fit, x){
+  dnormfit(fit, x, 1)/sum(dnormfit(fit, x, 1), dnormfit(fit, x, 2), dnormfit(fit, x, 3), na.rm =TRUE) 
+}
+
+#This bootstraps the estimated SD for percent of the first distribution on day x, for the "fit" model. 
+#this isn't working
+percent_dist_se <- function(fit, x, dist_num = 1, sim = 1000){
+  m1 <- rnorm(sim, fit$parameters$mu[1], fit$se$mu.se[1])
+  m1[is.na(m1)] <- 0
+  mu1 <- dnorm(x, m1, fit$parameters$sigma[1])
+   dnorm(x, 171, fit$parameters$sigma[1])
+  
+  m2 <- rnorm(sim, fit$parameters$mu[2], fit$se$mu.se[2])
+  m2[is.na(m2)] <- 0
+  mu2 <- dnorm(x, m2, fit$parameters$sigma[2])
+  
+  m3 <- rnorm(sim, fit$parameters$mu[3], fit$se$mu.se[3])
+  m3[is.na(m3)] <- 0
+  mu3 <- dnorm(x, m3, fit$parameters$sigma[3])
+  
+  vector <- mu1/sum(mu1, mu2, mu3)
+    dnorm(x, mu1, fit$parameters$sigma[1])/sum(dnorm(x, mu1, fit$parameters$sigma[1]), dnorm(x, mu2, fit$parameters$sigma[2]), dnorm(x, mu3, fit$parameters$sigma[3]), na.rm =TRUE) 
+  sd(vector)
 }
 
 pnormfit <- function(fit, x, dist_num =1){
