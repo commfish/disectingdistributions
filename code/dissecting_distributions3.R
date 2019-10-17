@@ -28,6 +28,10 @@ data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district9-3-19.csv') 
          year = year(date),
          day_of_year = yday(date)) # %>% #-> chig_data # convert the Date to its numeric equivalent 
 
+nas <- map_df(data2018, function(x) sum(is.na(x)))# figure out home many columns have NA's need purrr package
+
+data2018[is.na(data2018)] <- 0 # replace NAs with 0.
+
 # Defining harvest Change df_data to the one you want to run through. 
 # df_data <- df18lagoon <- data2018 %>% mutate(harvest = lagoon_272_10)
 # df_data <- df18ocdb_272_20 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20)
