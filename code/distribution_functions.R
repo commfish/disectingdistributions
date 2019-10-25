@@ -10,7 +10,7 @@ library(data.table)
 library(lubridate)
 library(gridExtra)
 library(sfsmisc)
-#citation("mixdist")
+citation("mixdist")
 #library(here)
 #?ecdf.ksCI()
 windowsFonts(Times=windowsFont("Times New Roman"))
@@ -153,8 +153,8 @@ year_stats <- function (df, year_wanted){
     #scale_y_continuous(breaks = yaxis$breaks, labels = yaxis$labels)+
     coord_cartesian(xlim = c(150, 220)) +
     ggtitle(paste0(year_wanted)) + #, " Early Run Estimation")) + 
-    theme_bw() #+
-    #theme(legend.justification = c(.5,0), legend.position = "bottom")
+    theme_bw() +
+    theme(legend.justification = c(.5,0), legend.position = "bottom")
   my_list <- list(df = df, "logistic" = log_curve, "runCDF" = runCDF)
   return(my_list) 
 

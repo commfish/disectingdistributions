@@ -30,7 +30,9 @@ data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district9-3-19.csv') 
 
 nas <- map_df(data2018, function(x) sum(is.na(x)))# figure out home many columns have NA's need purrr package
 
-data2018[is.na(data2018)] <- 0 # replace NAs with 0.
+data2018[!complete.cases(data2018),]$date #print out lines of non complete data to check. This should be 0.
+
+#data2018[is.na(data2018)] <- 0 # replace NAs with 0.
 
 # Defining harvest Change df_data to the one you want to run through.
 # df_data <- dfweironly <- data2018 %>% mutate(harvest = 0)
@@ -39,7 +41,7 @@ data2018[is.na(data2018)] <- 0 # replace NAs with 0.
 # df_data <- df18ocdb_272_30 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30)
  df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
 # df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
-# df_data <- all <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums())
+# df_data <- all_h <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums())
 # df_data <- kujulik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53) %>% rowSums())
 # df_data <- kumlik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kmbd80_272_64) %>% rowSums())
 # df_data <- west_kuj <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53, western) %>% rowSums())
@@ -49,7 +51,11 @@ data2018[is.na(data2018)] <- 0 # replace NAs with 0.
 post_harvest <- function(df = data2018){
   df <- df %>% 
     mutate(run = esc + harvest, #catch is our estimate of what would have occured at the wier had there been no fishing, based on migration timing studies.
-           run_early_gen = prop_early_genetics*run) %>%
+           run_early_gen = prop_early_genetics*run, 
+           harvest_all = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums(),
+           #harvest_all == harvest currently attributed to Chignik - although not all of that harvest is used when we develop our runtiming estimates.
+           run_all = esc + harvest_all,
+           run_early_gen_all = prop_early_genetics*run) %>%
     select(-c(lagoon_272_10:sedm80))
   return(df)
 }
@@ -129,30 +135,65 @@ ggsave(filename = paste0("figures/fig_year_stats", ".png", sep = ""), device = p
 
 
 #grab the values from y06$df that match those in dgen
-y06$df
 
 m <- rbind(y06$df, y07$df, y08$df, y10$df, y11$df, y12$df, y13$df, y14$df, y15$df, y16$df, y17$df, y18$df) %>%
   dplyr::select(prop_early_genetics, date, year, day_of_year, dist_percent)
 
-length(m$year)
-length(dgen$year)
-length(new$year)
-head(new)
-
 new <- dplyr::inner_join(dgen, m, by = c("year", "day_of_year")) %>%
-  dplyr::select(-month, -day, -chig_proportion, -date.y)
+  dplyr::select(-month, -day, -chig_proportion, -date.y) %>%
+  #bloack_proporiton is the rawer genetics sample estimates, pro_early_genetics is the proportion after teh black_proportion data has been fit to a logistic regresion. 
+  rename(genetics_p = black_proportion, genetics_sd = sd_bayes, runtiming_p = dist_percent) %>% 
+  mutate(dif = genetics_p - runtiming_p) #%>%
+  #select(date.x, year, day_of_year, sample_size, genetics_p, genetics_sd, dif,  runtiming_p)
 
-ks.test(new$black_proportion, new$dist_percent)
+x <- ks.test(new$genetics_p, new$runtiming_p)
 
 new1 <- new %>%
-  dplyr::filter(year == 2013) %>% 
-  dplyr::select(black_proportion, dist_percent)# %>% #, day_of_year)
+  #split(.$year) %>% 
+  dplyr::filter(year == 2015) %>% 
+  dplyr::select(genetics_p, runtiming_p)# %>% #, day_of_year)
 
-ks.test(new1$black_proportion, new1$dist_percent)
+ks.test(new1$genetics_p, new1$runtiming_p)
+shapiro.test(new1$dif) # difference is normally distributed therefore we can do pared sample T-tests
+t.test(new1$genetics_p, new1$runtiming_p, alternative = "two.sided")
+#even 2015 and 2018 which are the years where the percentages differ the most the paired-t-test-sample pvlaue is over .20.
+
+data <- new
+testing <- data %>%
+  group_by(year) %>%
+  nest() %>% 
+  mutate(ks = purrr::map_dbl(data, ~ ks.test(.$genetics_p, .$runtiming_p)$p.value, data = .),
+         shapiro = purrr::map_dbl(data, ~ shapiro.test(.$dif)$p.value, data = .),
+         paired_t = purrr::map_dbl(data, ~ t.test(.$genetics_p, .$runtiming_p, alternative = "two.sided")$p.value, data = .)) %>% 
+  select(-data)
+
+new <- new %>% 
+  #gather(key = "method", value = "p", black_proportion, dist_percent)
+  rename(genetics = genetics_p, runtiming = runtiming_p) %>% 
+  gather(key = "method", value = "p", genetics, runtiming)
 
   
+newplot <- new %>%
+  ggplot(aes(day_of_year, p)) +
+  geom_point(aes(shape = method, color = method), size = 2) +
+  scale_shape_manual(values = c(1,2)) +
+  theme_bw() +
+  facet_wrap(~year, ncol = 3) +
+  theme(legend.position = "bottom")
+
+ggsave(filename = paste0("figures/earlyrun_percentages", ".png", sep = ""), device = png(), width = 6, height = 9, units = "in", dpi = 300)
+
+# Logistics Regression
+glm.fit <- glm(p ~ day_of_year, data = new, family = binomial)
 
 # might need to remove coding after this line
+
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
 
 data <- df_data %>%
   group_by(year) %>%
