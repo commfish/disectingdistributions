@@ -12,12 +12,12 @@ library(lubridate)
 library(grid)
 library(gridExtra)
 library(cowplot)
-library(zoo) # to convert numeric date back to a number
+library(zoo) # to convert numeric date back to a number can conflict with lubridate.
 source('code/distribution_functions.R')
 
 # data ----
 # Chig_data only uses Chignik Bay District harvest
-data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district9-3-19.csv') %>% 
+data2018 <- read_csv('data/ChigISGrunappt2006-2017catch.by.district10-22-19.csv') %>% 
   dplyr::select(-Earlycatch, -Latecatch, -Earlytotal, -Latetotal) %>%
   dplyr::rename(
     prop_early_genetics = Propotionearly, 
@@ -36,16 +36,24 @@ data2018[!complete.cases(data2018),]$date #print out lines of non complete data 
 
 # Defining harvest Change df_data to the one you want to run through.
 # df_data <- dfweironly <- data2018 %>% mutate(harvest = 0)
+h_name = "h_none"
 # df_data <- df18lagoon <- data2018 %>% mutate(harvest = lagoon_272_10)
+h_name = "h_to_272_10_lagoon"
 # df_data <- df18ocdb_272_20 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20)
+h_name = "h_to_272_20"
 # df_data <- df18ocdb_272_30 <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30)
- df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
-# df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
-# df_data <- all_h <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums())
-# df_data <- kujulik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53) %>% rowSums())
-# df_data <- kumlik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kmbd80_272_64) %>% rowSums())
-# df_data <- west_kuj <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53, western) %>% rowSums())
+h_name = "h_to_272_30"
+df_data <- outercb <- data2018 %>% mutate(harvest = lagoon_272_10 + ocdb_272_20 + ocdb_272_30 + ocdb_272_40)
+h_name = "h_to_272_40_OuterCB"
 
+# df_data <- all_h <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:sedm80) %>% rowSums())
+h_name = "h_all"
+# df_data <- kujulik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53) %>% rowSums())
+h_name = "h_to_272_53_kujulik"
+# df_data <- kumlik <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kmbd80_272_64) %>% rowSums())
+h_name = "h_to_272_64_kumlik"
+# df_data <- west_kuj <- data2018 %>% mutate(harvest = data2018 %>% select(lagoon_272_10:kjbd_272_53, western) %>% rowSums())
+h_name = "h_west_to_kuj"
 
 # More data processing.
 post_harvest <- function(df = data2018){
@@ -75,7 +83,7 @@ dgen <- read_csv('data/chig_genetics_by_weir_date.csv') %>%
 out <- list()
 #p <-par(mfrow = c(2,5))
 for(i in 1:length(year_vector) ){
-  png(file = paste0("figures/early_genetics", year_vector[i], ".png"), height = 4, width = 6, units = "in", res = 300)
+  png(file = paste0("figures/early_genetics", year_vector[i],h_name, ".png"), height = 4, width = 6, units = "in", res = 300)
   out[[i]] <- early_look(df_data, year_vector[i])
   dev.off()
 }
@@ -83,24 +91,23 @@ for(i in 1:length(year_vector) ){
 eout <- do.call("rbind", out)
 
 for(i in 1:length(year_vector) ){
-  png(file = paste0("figures/mixture_auto", year_vector[i], ".png"), height = 4, width = 6, units = "in", res = 300)
-  #png(file = paste0("figures/mixture_auto", year_vector[i], ".png")) #, height = 4, width = 6, units = "in", res = 300)
+  png(file = paste0("figures/mixture_auto", year_vector[i], h_name, ".png"), height = 4, width = 6, units = "in", res = 300)
   auto_year(df_data, year_vector[i])
   dev.off()
 }
 
-plots <- list()
-for(i in 1:length(year_vector) ) {
-  plots[[i]] <- year_stats(df_data, year_vector[i])
-  ggsave(filename = paste0("figures/CDF",year_vector[i], ".png", sep = ""), device = png(), width = 6, height = 4, units = "in", dpi = 300)
-}
+#plots <- list()
+#for(i in 1:length(year_vector) ) {
+#  plots[[i]] <- year_stats(df_data, year_vector[i])
+#  ggsave(filename = paste0("figures/CDF",year_vector[i], h_name, ".png", sep = ""), device = png(), width = 6, height = 4, units = "in", dpi = 300)
+#}
 
-do.call(grid.arrange, plots)
-plots[[2]]
+#do.call(grid.arrange, plots)
+#plots[[2]]
 
-plots = lapply(1:9, function(.x) year_stats(,year_vector[i]))
-require(gridExtra)
-do.call(grid.arrange,  plots)
+#plots = lapply(1:9, function(.x) year_stats(,year_vector[i]))
+#require(gridExtra)
+#do.call(grid.arrange,  plots)
 
 y06 <- year_stats(df_data, 2006)
 y07 <- year_stats(df_data, 2007)
@@ -115,38 +122,52 @@ y16 <- year_stats(df_data, 2016)
 y17 <- year_stats(df_data, 2017)
 y18 <- year_stats(df_data, 2018)
 
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
+dev.off()
 
-
-fig <- cowplot::plot_grid(y06, y07, y08, y10, y11, y12, y13, y14, y15, y16, y17, y18, ncol = 3)
+fig <- cowplot::plot_grid(y06$runCDF, y07$runCDF, y08$runCDF, y10$runCDF, y11$runCDF, y12$runCDF, 
+                          y13$runCDF, y14$runCDF, y15$runCDF, y16$runCDF, y17$runCDF, y18$runCDF, ncol = 3)
 fig
-
+dev.off()
+#add y labels to plot #https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
 # y label
-y.grob <- textGrob("Count of early run sockeye", gp=gpar(col="black", fontsize=15), rot=90)
-#add y label to plot  
-#https://stackoverflow.com/questions/33114380/centered-x-axis-label-for-muliplot-using-cowplot-package
-fig <- grid.arrange(arrangeGrob(fig, left = y.grob))
-
-fig <- plot_grid(fig, ncol = 1, rel_heights = c(1, 0.1)) # rel_heights values control title margins
-fig <- add_sub(fig, "Day of year")
-
-ggsave(filename = paste0("figures/fig_year_stats", ".png", sep = ""), device = png(), width = 7, height = 9, units = "in", dpi = 300)
+y.grob <- textGrob(paste0("Count of early run sockeye using harvest ", h_name), gp=gpar(col="black", fontsize=15), rot=90)
+x.grob <- textGrob(paste0("Day of year "), gp=gpar(col="black", fontsize=15))
+fig <- grid.arrange(arrangeGrob(fig, left = y.grob, bottom = x.grob))
+ggsave(filename = paste0("figures/fig_year_stats_", h_name, ".png", sep = ""), device = png(), width = 7, height = 9, units = "in", dpi = 300)
 
 #analysis ----
-
 
 #grab the values from y06$df that match those in dgen
 
 m <- rbind(y06$df, y07$df, y08$df, y10$df, y11$df, y12$df, y13$df, y14$df, y15$df, y16$df, y17$df, y18$df) %>%
-  dplyr::select(prop_early_genetics, date, year, day_of_year, dist_percent)
+  dplyr::select(prop_early_genetics, date, year, day_of_year, dist_percent, run_early_gen_all, run_all, cum_run_all) %>%
+  dplyr::mutate(run_early_dis_all = dist_percent*run_all)
+
+m %>%
+  dplyr::group_by(year) %>% 
+  dplyr::mutate(cum_run_dis_all = cumsum(replace_na(run_early_dis_all))) %>%
+  dplyr::ungroup(year)   %>% View(cum_run_dis_all) #
 
 new <- dplyr::inner_join(dgen, m, by = c("year", "day_of_year")) %>%
   dplyr::select(-month, -day, -chig_proportion, -date.y) %>%
-  #bloack_proporiton is the rawer genetics sample estimates, pro_early_genetics is the proportion after teh black_proportion data has been fit to a logistic regresion. 
-  rename(genetics_p = black_proportion, genetics_sd = sd_bayes, runtiming_p = dist_percent) %>% 
+  #black_proportion is the rawer genetics sample estimates, pro_early_genetics is the proportion after the black_proportion data has been fit to a logistic regresion. 
+  rename(genetics_p = prop_early_genetics, genetics_sd = sd_bayes, runtiming_p = dist_percent) %>% 
   mutate(dif = genetics_p - runtiming_p) #%>%
+  
   #select(date.x, year, day_of_year, sample_size, genetics_p, genetics_sd, dif,  runtiming_p)
 
-x <- ks.test(new$genetics_p, new$runtiming_p)
+ks.test(new$genetics_p, new$runtiming_p)
 
 new1 <- new %>%
   #split(.$year) %>% 
@@ -158,6 +179,7 @@ shapiro.test(new1$dif) # difference is normally distributed therefore we can do 
 t.test(new1$genetics_p, new1$runtiming_p, alternative = "two.sided")
 #even 2015 and 2018 which are the years where the percentages differ the most the paired-t-test-sample pvlaue is over .20.
 
+#testing ----
 data <- new
 testing <- data %>%
   group_by(year) %>%
@@ -167,21 +189,30 @@ testing <- data %>%
          paired_t = purrr::map_dbl(data, ~ t.test(.$genetics_p, .$runtiming_p, alternative = "two.sided")$p.value, data = .)) %>% 
   select(-data)
 
+write.csv(testing, file = paste0("figures/testing_", h_name, ".csv", sep = ""))
+
+
+#proportion graph ----  
 new <- new %>% 
   #gather(key = "method", value = "p", black_proportion, dist_percent)
   rename(genetics = genetics_p, runtiming = runtiming_p) %>% 
   gather(key = "method", value = "p", genetics, runtiming)
 
-  
 newplot <- new %>%
   ggplot(aes(day_of_year, p)) +
   geom_point(aes(shape = method, color = method), size = 2) +
   scale_shape_manual(values = c(1,2)) +
   theme_bw() +
   facet_wrap(~year, ncol = 3) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  xlab(paste0("harvest = ", h_name))
 
-ggsave(filename = paste0("figures/earlyrun_percentages", ".png", sep = ""), device = png(), width = 6, height = 9, units = "in", dpi = 300)
+ggsave(filename = paste0("figures/earlyrun_p_", h_name, ".png", sep = ""), device = png(), width = 6, height = 9, units = "in", dpi = 300)
+
+h_name
+
+###End of current code.
+
 
 # Logistics Regression
 glm.fit <- glm(p ~ day_of_year, data = new, family = binomial)
@@ -233,72 +264,6 @@ fit18 <- dfa[[3]][12]
 
 
 
-#Must use group_by(day_of_year) %>% to get correct calculations
-df06 %>%
-  dplyr::group_by(day_of_year) %>% 
-  dplyr::mutate(dist_percent = percent_dist(fit06, day_of_year),
-                run_early_dis = dist_percent*run) -> df06 #doesn't work
-
-df <- df06
-df06 %>%
-  dplyr::group_by(year) %>% 
-  dplyr::mutate(cum_run_dis = cumsum(replace_na(run_early_dis, 0)),
-                cum_run_gen = cumsum(replace_na(run_early_gen, 0))) %>%
-  dplyr::ungroup(year) -> df #   %>% View(cum_run_gen) #
-
-p_early_dis <- sum(df$run_early_dis)/sum(df$run)
-p_early_gen <- sum(df$run_early_gen)/sum(df$run)
-
-
-min(df$day_of_year, na.rm = TRUE)
-
-# this is for simultaneous graphing. 
-df_long <- df %>%
-  gather(model_type, proportions, dist_percent, prop_early_genetics)
-length(df_long$proportions)
-
-
-ks.test(df$dist_percent, df$prop_early_genetics)
-
-#ecdf.ksCI(df$dist_percent)
-
-ggplot(df, aes(day_of_year, prop_early_genetics)) +
-  geom_point(size=2) + theme_light()
-ggplot(df, aes(day_of_year, dist_percent)) +
-  geom_point(size=2) + theme_light()
-
-ggplot(df_long, aes(x = day_of_year, y = proportions), color = model_type) +
-  geom_point() + theme_light()
-
-
-
-
-         dist1 = map(., ~ dnorm(.day_of_year, .[[3]][1][[1]][1][[1]][1, 2], .[[3]][1][[1]][1][[1]][1, 3])))
-
-         dist1 = map(., ~ dnorm(.day_of_year, .[[3]][1][[1]][1][[1]][1, 2], .[[3]][1][[1]][1][[1]][1, 3])))
-         dist_percent = map(data, ~ dnorm(day_of_year, .$) 
-                              percent_dist(., .$day_of_year))
-
-  dfa[[3]][1][[1]][1][[1]][1, 2] # last digit = 2 implies mu,  =3 implies sigma
-  dfa[[2]][2][[1]][1]#day of year
-  $parameters
-  
-  dnorm(x, fit$parameters$mu[dist_num],fit$parameters$sigma[dist_num])
-
-  fit <- distribution_estimation_norms_SEQ(df_fit) 
-  
-  
-  #Must use group_by(day_of_year) %>% to get correct calculations
-  df %>%
-    dplyr::group_by(day_of_year) %>% 
-    dplyr::mutate(dist_percent = percent_dist(fit,day_of_year),
-                  run_early_dis = dist_percent*run) -> df
-  
-  df %>%
-    dplyr::group_by(year) %>% 
-    dplyr::mutate(cum_run_dis = cumsum(replace_na(run_early_dis, 0)),
-                  cum_run_gen = cumsum(replace_na(run_early_gen, 0))) %>%
-    dplyr::ungroup(year) -> df #   %>% View(cum_run_gen) #
 
 
          
