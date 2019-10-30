@@ -151,13 +151,31 @@ ggsave(filename = paste0("figures/fig_year_stats_", h_name, ".png", sep = ""), d
 #grab the values from y06$df that match those in dgen
 
 m <- rbind(y06$df, y07$df, y08$df, y10$df, y11$df, y12$df, y13$df, y14$df, y15$df, y16$df, y17$df, y18$df) %>%
-  dplyr::select(prop_early_genetics, date, year, day_of_year, dist_percent, run_early_gen_all, run_all, cum_run_all) %>%
-  dplyr::mutate(run_early_dis_all = dist_percent*run_all)
+  dplyr::select(prop_early_genetics, date, year, day_of_year, dist_percent, run_early_gen_all, run_all, cum_run_all, 
+                cum_run_dis_all, cum_run_gen_all) 
+p_of_run <- m %>%
+  group_by(year) %>%
+  summarise(dis_p = max(cum_run_dis_all, na.rm = TRUE)/max(cum_run_all, na.rm = TRUE),
+            gen_p = max(cum_run_gen_all, na.rm = TRUE)/max(cum_run_all, na.rm = TRUE),
+            diff = dis_p - gen_p)
+write.csv(p_of_run, file = paste0("figures/p_of_run_", h_name, ".csv", sep = ""))
 
-m %>%
-  dplyr::group_by(year) %>% 
-  dplyr::mutate(cum_run_dis_all = cumsum(replace_na(run_early_dis_all))) %>%
-  dplyr::ungroup(year)   %>% View(cum_run_dis_all) #
+m1 <- m %>%
+  #gather(key = "method", value = "p", black_proportion, dist_percent)
+  rename(genetics = cum_run_gen_all, runtiming = cum_run_dis_all) %>% 
+  gather(key = "method", value = "cum_fish", genetics, runtiming )%>% 
+  ggplot(aes(day_of_year, cum_fish, color = method)) +
+  geom_line(aes(color = method), size = 1) +
+  #scale_shape_manual(values = c(1,2)) +
+  theme_bw() +
+  facet_wrap(~year, ncol = 3) +
+  theme(legend.position = "bottom") +
+  xlab(paste0("harvest = ", h_name))
+m1
+
+ggsave(filename = paste0("figures/cum_early_run", h_name, ".png", sep = ""), device = png(), width = 6, height = 9, units = "in", dpi = 300)
+
+
 
 new <- dplyr::inner_join(dgen, m, by = c("year", "day_of_year")) %>%
   dplyr::select(-month, -day, -chig_proportion, -date.y) %>%
@@ -175,7 +193,7 @@ new1 <- new %>%
   dplyr::select(genetics_p, runtiming_p)# %>% #, day_of_year)
 
 ks.test(new1$genetics_p, new1$runtiming_p)
-shapiro.test(new1$dif) # difference is normally distributed therefore we can do pared sample T-tests
+shapiro.test(new1$dif) # difference is normally distributed therefore we can do paired sample T-tests
 t.test(new1$genetics_p, new1$runtiming_p, alternative = "two.sided")
 #even 2015 and 2018 which are the years where the percentages differ the most the paired-t-test-sample pvlaue is over .20.
 
