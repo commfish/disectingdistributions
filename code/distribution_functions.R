@@ -88,7 +88,8 @@ year_stats <- function (df, year_wanted){
   df %>%
     dplyr::group_by(year) %>% 
     dplyr::mutate(cum_run_dis = cumsum(replace_na(run_early_dis, 0)),
-                  cum_run_gen = cumsum(replace_na(run_early_gen, 0))) %>%
+                  cum_run_gen = cumsum(replace_na(run_early_gen, 0)),
+                  cum_run_all = cumsum(replace_na(run_all,0))) %>%
     dplyr::ungroup(year) -> df #   %>% View(cum_run_gen) #
   
   p_early_dis <- sum(df$run_early_dis)/sum(df$run)
