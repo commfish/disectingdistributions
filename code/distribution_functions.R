@@ -83,12 +83,16 @@ year_stats <- function (df, year_wanted){
   df %>%
     dplyr::group_by(day_of_year) %>% 
     dplyr::mutate(dist_percent = percent_dist(fit,day_of_year),
-                  run_early_dis = dist_percent*run) -> df
+                  run_early_dis = dist_percent*run,
+                  run_early_dis_all = dist_percent*run_all,
+                  run_early_gen_all = prop_early_genetics*run_all) -> df
 
   df %>%
     dplyr::group_by(year) %>% 
     dplyr::mutate(cum_run_dis = cumsum(replace_na(run_early_dis, 0)),
+                  cum_run_dis_all = cumsum(replace_na(run_early_dis_all, 0)),
                   cum_run_gen = cumsum(replace_na(run_early_gen, 0)),
+                  cum_run_gen_all = cumsum(replace_na(run_early_gen_all, 0)),
                   cum_run_all = cumsum(replace_na(run_all,0))) %>%
     dplyr::ungroup(year) -> df #   %>% View(cum_run_gen) #
   
