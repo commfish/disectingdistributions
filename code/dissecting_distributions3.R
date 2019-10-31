@@ -161,12 +161,11 @@ p_of_run <- m %>%
 write.csv(p_of_run, file = paste0("figures/p_of_run_", h_name, ".csv", sep = ""))
 
 m1 <- m %>%
-  #gather(key = "method", value = "p", black_proportion, dist_percent)
   rename(genetics = cum_run_gen_all, runtiming = cum_run_dis_all) %>% 
-  gather(key = "method", value = "cum_fish", genetics, runtiming )%>% 
-  ggplot(aes(day_of_year, cum_fish, color = method)) +
-  geom_line(aes(color = method), size = 1) +
-  #scale_shape_manual(values = c(1,2)) +
+  gather(key = "method", value = "cum_fish", runtiming, genetics)%>% 
+  ggplot(aes(day_of_year, cum_fish, group = method)) +
+  geom_line(aes(linetype = method), size = 1) +
+  scale_linetype_manual(values=c("dashed", "solid")) +
   theme_bw() +
   facet_wrap(~year, ncol = 3) +
   theme(legend.position = "bottom") +
